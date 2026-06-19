@@ -1,0 +1,15 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.pdf
+__pycache__/
+*.pyc
+.DS_Store
+*.pkl
+*.json
+!cgsm_transfer_summary.json
