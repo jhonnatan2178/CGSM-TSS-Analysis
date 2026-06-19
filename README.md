@@ -5,9 +5,71 @@ Transferability of a Semi-Analytical TSS Retrieval Model in a Tropical Coastal
 Lagoon System: Ciénaga Grande de Santa Marta, Colombia* (target: MDPI *Remote
 Sensing*).
 
+## Results Summary
+
+### Step 1 — Pajarales calibration
+
+| Sensor | Fitting mode | $A_p$ | $C_p$ | LOSO-CV $R^2$ | RMSE |
+|---|---|---|---|---|---|
+| Landsat-8 | free 2-param (bootstrap-validated, CV=4.6%) | 1023.0 | 0.2732 | **0.784** | 50.5 mg/L |
+| Sentinel-2 (corrected) | boundary-converged, reported as 1-param | 533.2 | 0.55 | **0.372** | 73.2 mg/L |
+
+Sensors calibrated and reported **separately** — a pooled fit underperforms
+either alone (in-sample $R^2$=0.353 vs 0.803/0.419).
+
+### Step 2 — CGSM evaluation
+
+$\kappa$=0.13, bootstrap CV($C_p$)=49.6% → genuinely unidentifiable, correctly
+uses 1-param fixed-$C_p$. In-domain (Scenario B/C style) performance:
+$R^2$=0.53–0.64 depending on local adaptation.
+
+### Step 3 — Transferability, Pajarales → CGSM
+
+| Scenario | $R^2$ | RMSE | Bias | What it means |
+|---|---|---|---|---|
+| A. Direct transfer (zero local data) | 0.262 | 47.9 | −22.3 | Weak — the *better* L8 source transfers worse, because its sharper curve ($C_p$=0.27) is more sensitive to cross-site offset than a flatter one would be |
+| B. Local NECHAD, free $C_p$ | 0.639 | 33.5 | +3.7 | Best physical model |
+| C. Partial transfer ($C_p$ fixed at source) | 0.563 | 36.8 | +8.3 | Doesn't beat B — CGSM's narrow range under-uses that $C_p$ anchor |
+| D. Local GBR (non-physical ceiling) | 0.681 | 31.5 | −0.6 | Upper bound |
+
+### Methodological corrections made during this project
+
+1. **κ=0.35 threshold was wrong** — replaced with a validated bootstrap-CV($C_p$)
+   criterion; this is the paper's now-defensible core contribution
+   (`code/05_bootstrap_identifiability.py`)
+2. **ACOLITE beats raw Landsat C2L2** (half the noise at matched TSS) — settled
+   with data, not assumption (`code/01_pajarales_l8_raw_pipeline.py`,
+   §4.3.1 in `main.tex`)
+3. **S2 atmospheric correction fix** improved r: 0.118→0.622, $R^2$: −0.38→0.372
+   — real but doesn't close the L8 gap
+4. **Sensor pooling rejected** — persistent 50–85% reflectance offset, not
+   fixable by simple ratios (§4.4 `sec:disc_pooling`)
+5. **OWT stratification tested, doesn't help** (S2: 0.372→0.369; L8 has no
+   variation to test, 100% Type 3; CGSM has too few stations)
+6. **Station clustering tested, doesn't reliably help**
+   (`code/06_station_clustering.py`) — L8's one apparent gain (k=2,
+   R²=0.811 vs 0.784) is outlier-isolation (2 remote stations, 4 obs split
+   off), not genuine regionalization; S2 and CGSM get worse or can't be
+   tested
+7. **Temporal window justification corrected** — the real sensitivity curve
+   peaks tighter than originally claimed (±0.75–1.25 days, R²=0.735), then
+   declines to R²=0.662 at the ±2.84-day window used, rather than
+   "improving then plateauing" (`code/04_temporal_sensitivity.py`)
+8. **S1–TSS dilution claim flagged** as confounded by shared long-term
+   trends in both series — not yet resolved, would need the raw S1 time
+   series to detrend properly (§4.6 `sec:disc_hydro`, not fabricated)
+
+### Still open
+
+8 of 12 figures need data never available in this session (full multi-year
+satellite archive, Sentinel-1 SAR processing, GIS basemap); MDPI class file
+and bibliography are not included; funding and data-availability statements
+are placeholders. See "What is MISSING" below for the full breakdown.
+
 ## Status: NOT submission-ready — read this before compiling
 
 This repo was assembled from a single working session and reflects exactly
+
 what was verified in that session. It is **not** a complete MDPI submission
 package. Specifically:
 
