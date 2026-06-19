@@ -355,16 +355,32 @@ CGSM & 4 & 805 & 74 & 0.8 & 232.0 & 47.9 \\
 \label{sec:matchup}
  
 Each \textit{in situ} observation was paired with satellite imagery from Sentinel-2 or Landsat-8 acquired within a temporal window
-centred on the sampling date. To determine the optimal temporal range, a sensitivity analysis was conducted by progressively expanding the matchup window from 0 (same-day) up to $\pm$3~days, evaluating cross-validated model performance at each threshold
+centred on the sampling date. To determine the matchup window, a sensitivity analysis was conducted by progressively widening the maximum allowed lag from $\pm$0.5 up to $\pm$2.84~days (the largest lag present in the assembled matchup pool), evaluating leave-one-station-out cross-validated model performance at each threshold
 (Section~\ref{sec:sensitivity}).
 
-Model performance improved consistently up to $\pm$2.5~days and
-plateaued between $\pm$2.5 and $\pm$3.0~days, indicating temporal
-de-correlation of TSS dynamics at longer lags and diminishing returns
-from additional matchup pairs. Based on this analysis, a maximum window
-of $\pm$2.5~days was selected, balancing temporal representativeness
-and dataset robustness. All matchups in the final dataset fall within
-this range (maximum observed $|\Delta t| = 2.84$~days).
+Leave-one-station-out $R^2$ peaked at a relatively tight window
+($\pm$0.75--1.25~days, $R^2 = 0.735$, $n = 66$--67) and declined
+gradually as the window widened further, reaching $R^2 = 0.662$ at the
+full $\pm$2.84-day window used throughout this study ($n = 110$). This
+indicates genuine temporal de-correlation of TSS dynamics at longer
+lags, consistent with the temporal weighting scheme
+(Equation~\ref{eq:weight}) being a necessary correction rather than a
+formality: predictive skill is real but degrades smoothly, not
+abruptly, as matchup age increases. The $\pm$2.5-day cutoff used
+throughout this study was nonetheless retained, prioritising sample
+size and station coverage over the small peak in cross-validated
+$R^2$ available at a tighter window: at $\pm$0.75~days only 66 of the
+240 available Pajarales matchups remain, with correspondingly thinner
+per-station leave-one-out training folds, and several CGSM and
+Sentinel-2 strata would fall below the $\text{MIN\_SAMPLES} = 5$
+threshold required for a stable fit (Section~\ref{sec:identifiability}).
+The exponential temporal weighting scheme (Equation~\ref{eq:weight})
+is retained specifically to down-weight, rather than discard, the
+more temporally distant matchups that this wider window admits. All
+matchups in the final dataset fall within $\pm$2.84~days, the
+practical ceiling of the assembled matchup pool rather than an
+independently tested upper bound; performance at lags beyond this was
+not evaluated, since no such matchups exist in the dataset.
  
 Unlike traditional approaches relying exclusively on same-day matchups, this study implements a temporally weighted calibration framework to
 explicitly account for the uncertainty introduced by non-coincident
@@ -721,17 +737,26 @@ converges to $C_{p,\text{upper}}$ at every optimiser initialisation
 tested and is reported as one-parameter for this reason
 (Section~\ref{sec:identifiability}).}
  
-Figure~\ref{fig:sensitivity} shows CV~$R^2$ as a function of the
-maximum temporal lag threshold. Performance plateaued at $\pm$2.5~days,
-confirming the selected window.
+Figure~\ref{fig:sensitivity} shows leave-one-station-out CV~$R^2$ as a
+function of the maximum temporal lag threshold. Performance peaks at a
+tight window ($\pm$0.75--1.25~days, $R^2 = 0.735$) and declines
+gradually as the window widens, reaching $R^2 = 0.662$ at the
+$\pm$2.84-day ceiling of the assembled matchup pool -- the window used
+throughout this study. This pattern motivates the temporal weighting
+scheme (Equation~\ref{eq:weight}) and the choice to prioritise sample
+size and per-station fold stability over the smaller, tighter-window
+peak (Section~\ref{sec:matchup}).
  
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.80\linewidth]{images/fig1_temporal_sensitivity.png}
-    \caption{CV~$R^2$ as a function of maximum temporal
-    matchup window (Pajarales L8, B4, fixed $C_p$ NECHAD). Error bars:
-    fold-to-fold standard deviation. Performance plateaus at
-    $\pm$2.5~days.}
+    \caption{Leave-one-station-out CV~$R^2$ (left axis, line) and
+    matchup count (right axis, bars) as a function of maximum temporal
+    matchup window (Pajarales L8, B4, fixed $C_p$ NECHAD). Performance
+    peaks near $\pm$1~day and declines gradually as more, more
+    temporally distant matchups are admitted, reaching $R^2 = 0.662$
+    at the $\pm$2.84-day window used throughout this study (dashed
+    line).}
     \label{fig:sensitivity}
 \end{figure}
 
@@ -1048,9 +1073,17 @@ For Landsat-8, in-sample $R^2 = 0.693$ at Pajarales is consistent with,
 and slightly exceeds, the leave-one-station-out result
 ($R^2 = 0.662$), the expected direction of change when moving from
 training-set fit to genuine spatial generalisation. The temporal
-sensitivity analysis confirmed $\pm$2.5~days as the optimal window, with
+sensitivity analysis (Section~\ref{sec:sensitivity}) showed that
+cross-validated performance is highest at a tighter matchup window
+than the one adopted, declining smoothly rather than abruptly as the
+window widens to $\pm$2.84~days; the wider window was retained for
+sample size and per-station fold stability (Section~\ref{sec:matchup}),
+not because it maximises cross-validated $R^2$ in isolation. There is
 no significant relationship between temporal lag and absolute residual
-($r = -0.20$, $p = 0.08$), validating the temporal weighting strategy.
+within the adopted window ($r = -0.20$, $p = 0.08$), supporting the
+temporal weighting strategy (Equation~\ref{eq:weight}) as the
+appropriate way to retain, rather than discard, the more temporally
+distant matchups that this trade-off admits.
  
 \subsubsection{ACOLITE versus Uncorrected Surface Reflectance for Landsat-8}
 \label{sec:disc_acolite_vs_raw}
@@ -1238,6 +1271,17 @@ relative to Landsat-8, means the reported scenario gradient
 (Section~\ref{sec:results_transfer}) should be treated as indicative of
 the right ordering of approaches rather than a precise estimate of
 each scenario's accuracy at an arbitrary new site.
+
+The temporal matchup window sensitivity analysis
+(Section~\ref{sec:sensitivity}, Figure~\ref{fig:sensitivity}) is
+similarly bounded by the assembled matchup pool: it characterises how
+performance changes as the window is narrowed from the existing
+$\pm$2.84-day ceiling down to $\pm$0.5~days, but cannot independently
+test whether a window wider than $\pm$2.84~days would perform better
+or worse, since no matchups beyond that lag exist in the dataset. The
+$\pm$2.5-day window adopted throughout this study is therefore a
+sample-size and fold-stability choice within the available range,
+not a verified global optimum.
 
 A second limitation concerns Scenario~C specifically: its proposed
 operational advantage rests on a physical argument (shared sediment

@@ -16,6 +16,17 @@ package. Specifically:
   MAPE, Ap, Cp, kappa values) was computed from the data in `data/` using the
   scripts in `code/`, and cross-checked against saved JSON output before being
   written into the LaTeX. See `code/*.py` to reproduce any number in the text.
+- **Note on Figure 1 / §2.3 / §4.2**: the original draft text claimed
+  performance "improved consistently up to ±2.5 days and plateaued."
+  Running the actual sensitivity sweep (`code/04_temporal_sensitivity.py`)
+  showed the opposite shape — CV R² peaks at a *tighter* window
+  (±0.75–1.25 days, R²=0.735) and *declines* gradually to R²=0.662 at the
+  full ±2.84-day window used throughout the study. The manuscript text was
+  rewritten to match this real result and justify the ±2.5-day window on
+  sample-size/fold-stability grounds instead of a false "improves then
+  plateaus" claim. If you have an independently-run sensitivity analysis
+  that differs from this, check it against `code/04_temporal_sensitivity.py`
+  before trusting either.
 - `data/` — the five matchup datasets actually used:
   - `pajarales_l8_acolite.csv` — Landsat-8, ACOLITE-corrected, n=110 (primary L8 input)
   - `pajarales_s2_acolite_corrected.csv` — Sentinel-2, ACOLITE with atmospheric-correction
@@ -41,7 +52,7 @@ These eight figures require data that was never part of this working session
 
 | Figure | Needs |
 |---|---|
-| `images/fig1_temporal_sensitivity.png` | Re-run of the ±0 to ±3 day matchup window sweep — script not built in this session |
+| `images/fig1_temporal_sensitivity.png` | DONE — see `code/04_temporal_sensitivity.py`. Real curve peaks ±0.75-1.25d (R²=0.735), declines to R²=0.662 at ±2.84d. Manuscript text updated to match. |
 | `images/map_stamarta.png` | Study area map — GIS shapefiles, basemap |
 | `images/TSS_promedio_anual_mosaico_CGSM.png` | Annual median TSS applied to full 2013–2024 satellite archive (not just matchup subset) |
 | `images/fig4_monthly_climatology.png` | Full 10-year in-situ time series (matchup subset only covers satellite-paired observations) |
