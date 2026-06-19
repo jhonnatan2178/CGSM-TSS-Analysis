@@ -85,7 +85,7 @@ jhonnatan.rodriguezramos@uniroma1.it
 }
 
 % Keywords
-\abstract{Empirical TSS retrieval models derived from satellite reflectance are frequently applied beyond their calibration domain without explicit assessment of parameter identifiability or rigorous transferability testing. We address both limitations using harmonised Landsat-8 (L8) and Sentinel-2 (S2) matchup datasets collected at the Pajarales sub-lagoon (calibration; n = 240) and the Ciénaga Grande de Santa Marta (CGSM; validation; n = 74, 2015–2024), Colombia. We introduce a formal identifiability criterion ($\kappa = \rho_{max}/C_{p,upper} \geq  0.35$) to determine whether the Nechad saturation parameter $C_p$ can be reliably estimated from data; when $\kappa < 0.35$, a closed-form weighted least-squares solution for the amplitude parameter $A_p$ alone is applied, with $C_p$ fixed to the band's physical upper bound rather than the literature value, which was found to destabilise the fit for this system. Landsat-8 and Sentinel-2 are calibrated and reported as separate, physically grounded single-sensor models rather than pooled into a single retrieval, since a pooled fit was found to underperform either sensor calibrated alone. A systematic four-scenario transferability framework — spanning direct parameter transfer, local recalibration, partial transfer, and a machine-learning benchmark — reveals a monotonic gradient in leave-one-station-out performance at the CGSM: direct transfer with no local adjustment achieves $R^2 = 0.448$; partial transfer (fixed $C_p$ from Pajarales, locally refitted $A_p$) reaches $R^2 = 0.531$; full local recalibration reaches $R^2 = 0.639$, closely approaching the Landsat-8 calibration ceiling at Pajarales itself ($R^2 = 0.662$); and a Gradient Boosting ceiling reaches $R^2 = 0.681$. This smooth degradation, rather than a catastrophic failure of direct transfer, follows from anchoring $C_p$ at a value that remains numerically stable across both sites. Analysis of 10 years of in-situ matchups (2015–2024) reveals significantly higher dry-season TSS (median 75 mg/L) than wet-season values (29 mg/L; Kruskal-Wallis p < 0.001) in Pajarales, while the CGSM shows weaker seasonal differentiation. An atmospheric-correction artefact was identified and corrected for Sentinel-2 at Pajarales, after which Sentinel-2 reflectance--TSS correlation improved from r = 0.12 to r = 0.62; even so, Landsat-8 retains substantially stronger and more stable performance ($R^2_{\text{LOSO}} = 0.662$ vs.\ $0.372$), and a persistent inter-sensor reflectance offset precludes pooled multi-sensor calibration at this site. These findings provide a reproducible, physics-grounded calibration and transfer framework applicable to data-limited tropical coastal lagoons.}
+\abstract{Empirical TSS retrieval models derived from satellite reflectance are frequently applied beyond their calibration domain without explicit assessment of parameter identifiability or rigorous transferability testing. We address both limitations using harmonised Landsat-8 (L8) and Sentinel-2 (S2) matchup datasets collected at the Pajarales sub-lagoon (calibration; n = 240) and the Ciénaga Grande de Santa Marta (CGSM; validation; n = 74, 2015–2024), Colombia. We evaluated a commonly used screening ratio for Nechad parameter identifiability ($\kappa = \rho_{max}/C_{p,upper}$, with a conventional $\kappa \geq 0.35$ cutoff for free two-parameter fitting) directly against this system's own data, and found it did not reliably separate identifiable from unidentifiable fits: Landsat-8 at Pajarales ($\kappa = 0.343$, nominally below threshold) in fact supports a stable, bootstrap-validated free-parameter fit, while the CGSM dataset ($\kappa = 0.13$, well below threshold) does not. We therefore replace the fixed $\kappa$ cutoff with a direct bootstrap stability criterion on the fitted saturation parameter $C_p$, and use it to determine, per sensor and site, whether $C_p$ can be reliably estimated from data or must instead be fixed externally with $A_p$ estimated by closed-form weighted least squares. Landsat-8 and Sentinel-2 are calibrated and reported as separate, physically grounded single-sensor models rather than pooled into a single retrieval, since a pooled fit was found to underperform either sensor calibrated alone. Using the bootstrap-validated Landsat-8 calibration ($R^2_{\text{LOSO}} = 0.784$ at Pajarales), a four-scenario transferability framework to the CGSM shows that direct transfer with no local adjustment performs poorly ($R^2 = 0.262$) precisely because the better-fitting, more sharply curved source model is more sensitive to cross-site reflectance mismatch than a flatter one would be; performance recovers substantially once any local data are used, reaching $R^2 = 0.563$ (partial transfer, $C_p$ fixed, $A_p$ refit locally), $R^2 = 0.639$ (full local recalibration), and $R^2 = 0.681$ (a non-physical Gradient Boosting ceiling). This reveals a genuine trade-off, not previously reported for this system: a source calibration that fits its own domain best is not automatically the best zero-adjustment transfer source. Analysis of 10 years of in-situ matchups (2015–2024) reveals significantly higher dry-season TSS (median 75 mg/L) than wet-season values (29 mg/L; Kruskal-Wallis p < 0.001) in Pajarales, while the CGSM shows weaker seasonal differentiation. An atmospheric-correction artefact was identified and corrected for Sentinel-2 at Pajarales, after which Sentinel-2 reflectance--TSS correlation improved from r = 0.12 to r = 0.62; even so, Landsat-8 retains substantially stronger and more stable performance ($R^2_{\text{LOSO}} = 0.784$ vs.\ $0.372$), and a persistent inter-sensor reflectance offset precludes pooled multi-sensor calibration at this site. These findings provide a reproducible, physics-grounded calibration and transfer framework applicable to data-limited tropical coastal lagoons, and illustrate that identifiability criteria adopted from the literature should be validated against, rather than merely applied to, a new system's own data before they are used to drive calibration decisions.}
 \keyword{Remote sensing, Water quality, Environmental monitoring, Time Series Analysis, Seasonal Dynamics, Landsat 8, Sentinel 2} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -489,7 +489,7 @@ benchmark but not adopted as the primary retrieval model.
  
 Reliable estimation of both $A_p$ and $C_p$ from data requires that
 observed reflectances span sufficient curvature of
-Equation~(\ref{eq:nechad}). We define the identifiability ratio:
+Equation~(\ref{eq:nechad}). A simple, commonly used screening ratio is
  
 \begin{equation}
 \kappa = \frac{\rho_{\max}}{C_{p,\text{upper}}}
@@ -498,28 +498,68 @@ Equation~(\ref{eq:nechad}). We define the identifiability ratio:
  
 where $C_{p,\text{upper}}$ is the upper physical bound for the relevant
 spectral band (0.20 for blue $\sim$490~nm; 0.55 for red $\sim$665~nm;
-0.60 for NIR $\sim$865~nm). When $\kappa < 0.35$, the data lie on the
-near-linear segment of the Nechad curve and $C_p$ cannot be
-independently estimated; any large value of $C_p$ yields virtually
-identical fit quality, causing gradient-based optimisers to drift to
-physically meaningless values that span many orders of magnitude.
-When $\kappa \geq 0.35$, sufficient curvature exists for free
-two-parameter fitting in principle; in practice, however, even when
-$\kappa \geq 0.35$ the fitted $C_p$ was found to converge to
-$C_{p,\text{upper}}$ regardless of optimiser initialisation for both
-sensors at Pajarales (Section~\ref{sec:results_calibration}), so both
-sensors are reported as effectively one-parameter fits with
-$C_p = C_{p,\text{upper}}$ fixed. Following this criterion, all
-retrieval in this study uses a single band, $\rho_{665}$ (red, B4), for
-which $\kappa$ is computed once per sensor from that sensor's full
-Pajarales matchup set: $\kappa_{\text{L8}} = 0.343$ and
-$\kappa_{\text{S2}} = 0.452$ (corrected reflectance;
-Section~\ref{sec:disc_s2gap}).
+0.60 for NIR $\sim$865~nm). $\kappa$ is attractive because it requires
+only the single largest observed reflectance, but it is for the same
+reason fragile: it is a single-point statistic and does not reflect how
+many observations actually populate the curvature-informative region of
+the Nechad curve, where $\rho$ approaches $C_p$ closely enough for the
+denominator term to matter. We found this empirically: a candidate
+fixed threshold of $\kappa \geq 0.35$, evaluated against this study's
+own three site--sensor datasets (Section~\ref{sec:results_calibration}),
+did \emph{not} correctly separate identifiable from unidentifiable
+fits in either direction -- Landsat-8 at Pajarales ($\kappa = 0.343$,
+just below 0.35) in fact supports a stable free-$C_p$ fit, while CGSM
+($\kappa = 0.129$, well below 0.35) does not. $\kappa$ alone is
+therefore reported in Table~\ref{tab:identifiability} as a descriptive
+summary statistic, not used as the operative identifiability test in
+this study.
+
+In place of a fixed $\kappa$ cutoff, identifiability is assessed
+directly via non-parametric bootstrap: for each site--sensor dataset,
+the free two-parameter Nechad fit
+(Equation~\ref{eq:nechad}) is re-estimated on 50 bootstrap resamples
+(sampling observations with replacement, same size as the original
+sample), and the coefficient of variation of the resulting $C_p$
+distribution, $\mathrm{CV}(C_p) = \mathrm{sd}(C_p)/\mathrm{mean}(C_p)$,
+is used as the identifiability statistic. A dataset is treated as
+supporting a free two-parameter fit when $\mathrm{CV}(C_p)$ is small
+(here, below 10\%) across resamples; when $\mathrm{CV}(C_p)$ is large,
+the fitted $C_p$ is not being meaningfully constrained by the data and
+$C_p$ is instead fixed externally
+(Equation~\ref{eq:ap_closed}, below). This criterion is more
+computationally expensive than $\kappa$ but tests directly what
+$\kappa$ only approximates: whether $C_p$ is actually pinned down by
+the observed reflectance distribution, including its density in the
+curvature-sensitive region, not merely whether the single largest
+observation is large enough in principle. We additionally report, for
+each dataset, the count of observations satisfying
+$\rho_i \geq 0.1\,C_{p,\text{upper}}$ ($n_{\text{curv}}$, a literal
+count of points within the curvature-informative band of the Nechad
+curve), which we found tracks bootstrap stability far more closely
+than $\kappa$ itself (Section~\ref{sec:results_calibration}).
  
-When $\kappa < 0.35$ (\textbf{one-parameter mode}), $C_p$ is fixed to
-the band's physical upper bound, $C_{p,\text{upper}}$, and $A_p$ is
-estimated analytically via the closed-form weighted least-squares
-solution:
+By this bootstrap criterion, applied per sensor to the full Pajarales
+matchup set and to the CGSM dataset
+(Section~\ref{sec:results_calibration}): Landsat-8 at Pajarales
+($n_{\text{curv}} = 73$ of 110) and Sentinel-2 at Pajarales, corrected
+reflectance ($n_{\text{curv}} = 109$ of 130), both support a stable
+free-$C_p$ fit ($\mathrm{CV}(C_p) = 4.6\%$ and $8.7\%$ respectively).
+CGSM ($n_{\text{curv}} = 6$ of 74) does not
+($\mathrm{CV}(C_p) = 49.6\%$): only six observations populate the
+curvature-informative region, and bootstrap resamples that under-sample
+these six produce wildly different $C_p$ estimates (bootstrap range
+0.10--0.55, the full allowed bound). For Sentinel-2, although the
+bootstrap distribution of $C_p$ is comparatively tight, its central
+tendency sits at the imposed upper bound $C_{p,\text{upper}}$ rather
+than at an interior value (Section~\ref{sec:results_calibration}); we
+treat this as a boundary-converged fit and report it as effectively
+one-parameter for the same reason given below, even though it passes
+the stability test in the strict sense of low $C_p$ variance.
+ 
+When $C_p$ is not identifiable by this criterion (\textbf{one-parameter
+mode}, used here only for CGSM), $C_p$ is fixed to the band's physical
+upper bound, $C_{p,\text{upper}}$, and $A_p$ is estimated analytically
+via the closed-form weighted least-squares solution:
  
 \begin{equation}
 \hat{A}_p = \frac{\displaystyle\sum_{i} w_i\,\text{TSS}_i\,\varphi_i}
@@ -531,12 +571,14 @@ solution:
  
 where $w_i$ are the temporal weights from Equation~(\ref{eq:weight}).
 This is the analytically exact maximum-likelihood estimator for $A_p$
-given known $C_p$. When $\kappa \geq 0.35$, both $A_p$ and $C_p$ are
-first estimated by non-linear weighted least squares, multi-start
-initialised over a grid of starting values for $C_p \in
-[C_{p,\text{lower}},\, C_{p,\text{upper}}]$; if the optimised $C_p$
-converges to $C_{p,\text{upper}}$ regardless of starting value, the
-fit is reported and treated as one-parameter (Equation~\ref{eq:ap_closed})
+given known $C_p$. When the bootstrap criterion supports a free fit
+(\textbf{two-parameter mode}, used here for Landsat-8 and Sentinel-2 at
+Pajarales), both $A_p$ and $C_p$ are estimated by non-linear weighted
+least squares, multi-start initialised over a grid of starting values
+for $C_p \in [C_{p,\text{lower}},\, C_{p,\text{upper}}]$; if the
+optimised $C_p$ converges to $C_{p,\text{upper}}$ regardless of
+starting value (Sentinel-2, see above), the fit is reported and
+treated as one-parameter (Equation~\ref{eq:ap_closed})
 for all downstream cross-validation, since a boundary-converged
 two-parameter fit carries no additional information over the
 closed-form solution and is less numerically stable when refit on
@@ -554,11 +596,30 @@ Landsat-8 and Sentinel-2, rather than pooled across sensors. A pooled
 single-$A_p$ fit across both sensors was evaluated and found to
 underperform either single-sensor fit (Section~\ref{sec:disc_pooling}),
 consistent with a persistent inter-sensor reflectance offset described
-below; OWT classification, based on the relative magnitude of the
-blue ($\rho_{490}$), green ($\rho_{560}$), and red ($\rho_{665}$)
-bands, is retained as a descriptive water-type diagnostic
-(Section~\ref{sec:results_calibration}) but is not used to stratify
-the fitted Nechad parameters, which are reported per sensor only.
+below. An optical water type (OWT) is additionally assigned to every
+matchup from the relative magnitude of the blue ($\rho_{490}$), green
+($\rho_{560}$), and red ($\rho_{665}$) bands only -- never from the
+target TSS value, so this classification cannot leak information into
+model evaluation:
+\begin{itemize}
+    \item \textbf{Type 1} (clearer water): $\rho_{665} < \rho_{560}$
+          and $\rho_{665} > \rho_{490}$;
+    \item \textbf{Type 2} (intermediate): $\rho_{560} \geq \rho_{665}
+          > \rho_{490}$;
+    \item \textbf{Type 3} (turbid, red-dominant): all other cases,
+          i.e.\ $\rho_{665} \geq \rho_{560}$ and $\rho_{665} \leq
+          \rho_{490}$, or $\rho_{665} \leq \rho_{490}$.
+\end{itemize}
+This rule uses bands B2/B3/B4 only and is evaluated identically for
+both sensors using each sensor's own native blue/green/red bands
+(Table~\ref{tab:spectral_bands}). OWT is retained as a descriptive
+water-type diagnostic reported alongside calibration results
+(Section~\ref{sec:results_calibration}, Figure~\ref{fig:strengthening}f)
+but is not used to stratify the fitted Nechad parameters in this study,
+which are reported per sensor only; the sample sizes available within
+individual OWT$\times$sensor strata at Pajarales were found to be too
+small to support stable independent fits, particularly for Sentinel-2
+Type~1 (clearer water, the least common class at this site).
  
  
 \subsubsection{Cross-Validation Strategy}
@@ -643,7 +704,7 @@ dataset (four monitoring stations):
  
 \begin{itemize}
     \item \textbf{Scenario~A — Direct transfer:} the Pajarales-calibrated
-          Landsat-8 model ($A_p = 1476.2$, $C_p = C_{p,\text{upper}} = 0.55$;
+          Landsat-8 model ($A_p = 1023.0$, $C_p = 0.2732$;
           Section~\ref{sec:results_calibration}) applied to CGSM
           reflectances unchanged, with no local adjustment at all and no
           leave-one-station-out refitting (the model never sees CGSM
@@ -663,12 +724,19 @@ dataset (four monitoring stations):
           stratification used for Pajarales. Proposed as a lower-data
           operational strategy for new sub-basins.
  
-    \item \textbf{Scenario~D — Local GBR:} Gradient Boosting
-          Regressor trained on the four raw reflectance bands
-          ($\rho_{490}$, $\rho_{560}$, $\rho_{665}$, $\rho_{865}$),
-          re-estimated for each held-out station from the other three
-          using CGSM data only. Provides a non-physical performance
-          ceiling.
+    \item \textbf{Scenario~D — Local GBR:} a scikit-learn
+          \texttt{GradientBoostingRegressor} \citep{scikit-learn}
+          ($n_{\text{estimators}} = 150$, $\text{max\_depth} = 3$,
+          $\text{learning\_rate} = 0.05$, all other hyperparameters at
+          their scikit-learn defaults) trained directly on the four raw
+          reflectance bands as features
+          ($\rho_{490}$, $\rho_{560}$, $\rho_{665}$, $\rho_{865}$; no
+          derived indices or ratios), with \textit{in situ} TSS as the
+          regression target, re-estimated for each held-out station
+          from the other three using CGSM data only. Provides a
+          non-physical performance ceiling; hyperparameters were not
+          tuned for this dataset and are reported as used, not as the
+          result of a search.
 \end{itemize}
  
 The physical rationale for Scenario~C is that $C_p$ encodes the
@@ -701,40 +769,51 @@ Landsat-8 exhibited a stronger reflectance--TSS
 correlation at Pajarales ($r = 0.847$) than Sentinel-2 ($r = 0.622$,
 after correction of the atmospheric-correction artefact identified in
 Section~\ref{sec:disc_s2gap}; the uncorrected value was $r = 0.118$),
-both on the red band ($\rho_{665}$, B4). $\kappa$ is computed once per
-sensor from the full Pajarales matchup set for that sensor
-(Section~\ref{sec:identifiability}): Landsat-8 ($\kappa = 0.343$) falls
-below the $\kappa = 0.35$ threshold and uses one-parameter fitting with
-$C_p$ fixed; Sentinel-2 ($\kappa = 0.452$) nominally exceeds the
-threshold, but its two-parameter fit converges to $C_p = C_{p,\text{upper}}$
-regardless of optimiser initialisation and is therefore also treated as
-one-parameter (Section~\ref{sec:identifiability}). CGSM data
-($\kappa_{B4} = 0.13$) fall below the threshold, requiring
-one-parameter fitting with $C_p$ fixed.
+both on the red band ($\rho_{665}$, B4). Fitting mode is determined per
+sensor and per site by the bootstrap identifiability criterion of
+Section~\ref{sec:identifiability}, computed once from each dataset's
+full matchup set: Landsat-8 at Pajarales ($n_{\text{curv}}=73$ of 110,
+$\mathrm{CV}(C_p)=4.6\%$) supports a free two-parameter fit;
+Sentinel-2 at Pajarales, corrected reflectance ($n_{\text{curv}}=109$
+of 130, $\mathrm{CV}(C_p)=8.7\%$) is bootstrap-stable but converges to
+the imposed $C_p$ boundary and is reported as effectively
+one-parameter; CGSM ($n_{\text{curv}}=6$ of 74,
+$\mathrm{CV}(C_p)=49.6\%$) does not support a free fit and uses
+one-parameter fitting with $C_p$ fixed at $C_{p,\text{upper}}=0.55$.
+The screening ratio $\kappa = \rho_{\max}/C_{p,\text{upper}}$
+(Equation~\ref{eq:kappa}) is reported alongside these results in
+Table~\ref{tab:identifiability} for reference, but, as discussed in
+Section~\ref{sec:identifiability}, does not itself determine fitting
+mode in this study: it places Landsat-8 ($\kappa=0.343$) on the
+opposite side of the conventional 0.35 cutoff from where the bootstrap
+criterion places it.
  
 \begin{table}[ht]
 \centering
-\caption{Reflectance range and identifiability ratio ($\kappa$) per
-sensor on the red band ($\rho_{665}$, B4) -- the only band used for
-TSS retrieval in this study. $r$ denotes the Pearson correlation with
-\textit{in situ} TSS. $\kappa < 0.35$: one-parameter mode
-($C_p$ fixed); $\kappa \geq 0.35$ nominal, but boundary-converged and
-treated as one-parameter in practice (Sentinel-2, see text).}
+\caption{Reflectance range, screening ratio ($\kappa$), and bootstrap
+identifiability diagnostics per sensor on the red band ($\rho_{665}$,
+B4) -- the only band used for TSS retrieval in this study. $r$ denotes
+the Pearson correlation with \textit{in situ} TSS. $n_{\text{curv}}$:
+count of observations with $\rho_i \geq 0.1\,C_{p,\text{upper}}$.
+$\mathrm{CV}(C_p)$: coefficient of variation of $C_p$ across 50
+bootstrap resamples. Fitting mode is determined by $\mathrm{CV}(C_p)$
+(Section~\ref{sec:identifiability}), not by $\kappa$.}
 \label{tab:identifiability}
 \small
-\begin{tabular}{llccccc}
+\begin{tabular}{llcccccc}
 \toprule
-Site & Sensor & Band & $\lambda$ (nm) & $\rho_{\max}$ & $\kappa$ & Mode ($r$) \\
+Site & Sensor & $\rho_{\max}$ & $\kappa$ & $n_{\text{curv}}$ & $\mathrm{CV}(C_p)$ & Mode ($r$) \\
 \midrule
-Pajarales & L8 & B4 & 665 & 0.189 & 0.343 & 1-param (0.847) \\
-Pajarales & S2 & B4 & 665 & 0.249 & 0.452 & 1-param$^*$ (0.622) \\
-CGSM      & L8 & B4 & 655 & 0.071 & 0.13  & 1-param (0.775)  \\
+Pajarales & L8 & 0.189 & 0.343 & 73/110 & 4.6\% & 2-param (0.847) \\
+Pajarales & S2 & 0.249 & 0.452 & 109/130 & 8.7\% & 1-param$^*$ (0.622) \\
+CGSM      & L8 & 0.071 & 0.13  & 6/74 & 49.6\% & 1-param (0.775)  \\
 \bottomrule
 \end{tabular}
 \end{table}
-{\small $^*$Nominally two-parameter ($\kappa \geq 0.35$); fitted $C_p$
-converges to $C_{p,\text{upper}}$ at every optimiser initialisation
-tested and is reported as one-parameter for this reason
+{\small $^*$Bootstrap-stable in the strict variance sense, but the
+fitted $C_p$ converges to the imposed boundary $C_{p,\text{upper}}$
+rather than an interior value at every optimiser initialisation
+tested, and is reported as one-parameter for this reason
 (Section~\ref{sec:identifiability}).}
  
 Figure~\ref{fig:sensitivity} shows leave-one-station-out CV~$R^2$ as a
@@ -742,17 +821,26 @@ function of the maximum temporal lag threshold. Performance peaks at a
 tight window ($\pm$0.75--1.25~days, $R^2 = 0.735$) and declines
 gradually as the window widens, reaching $R^2 = 0.662$ at the
 $\pm$2.84-day ceiling of the assembled matchup pool -- the window used
-throughout this study. This pattern motivates the temporal weighting
-scheme (Equation~\ref{eq:weight}) and the choice to prioritise sample
-size and per-station fold stability over the smaller, tighter-window
-peak (Section~\ref{sec:matchup}).
+throughout this study. This sensitivity analysis used a fixed-$C_p$
+NECHAD pipeline for computational simplicity across the matchup-window
+sweep (Section~\ref{sec:matchup}) and predates the bootstrap
+identifiability criterion adopted for the main calibration
+(Section~\ref{sec:identifiability}); the $R^2 = 0.662$ value shown here
+is therefore the fixed-$C_p$ result and differs from the free-$C_p$
+calibration figure ($R^2 = 0.784$) reported as primary in
+Table~\ref{tab:pajarales_cv}. This pattern motivates the temporal
+weighting scheme (Equation~\ref{eq:weight}) and the choice to
+prioritise sample size and per-station fold stability over the
+smaller, tighter-window peak (Section~\ref{sec:matchup}).
  
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.80\linewidth]{images/fig1_temporal_sensitivity.png}
     \caption{Leave-one-station-out CV~$R^2$ (left axis, line) and
     matchup count (right axis, bars) as a function of maximum temporal
-    matchup window (Pajarales L8, B4, fixed $C_p$ NECHAD). Performance
+    matchup window (Pajarales L8, B4, fixed $C_p=C_{p,\text{upper}}$
+    NECHAD; see text for the distinction from the free-$C_p$ primary
+    calibration). Performance
     peaks near $\pm$1~day and declines gradually as more, more
     temporally distant matchups are admitted, reaching $R^2 = 0.662$
     at the $\pm$2.84-day window used throughout this study (dashed
@@ -765,11 +853,16 @@ Figure~\ref{fig:identifiability} shows reflectance domain overlap and identifiab
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.95\linewidth]{images/fig5_domain_identifiability.png}
-    \caption{Left: Reflectance domain overlap ($\rho_{B4}$,
+    \caption{(a) Reflectance domain overlap ($\rho_{B4}$,
     $\sim$665~nm) between Pajarales and CGSM. CGSM's range sits within
-    the lower portion of the Pajarales distribution. Right: Identifiability
-    ratio $\kappa$ per sensor--site--band. Hatched bars fall below
-    $\kappa = 0.35$ and require one-parameter mode.}
+    the lower portion of the Pajarales distribution. (b) Screening
+    ratio $\kappa$ per sensor--site--band (Table~\ref{tab:identifiability}),
+    shown for reference only. (c) Bootstrap $\mathrm{CV}(C_p)$, the
+    criterion actually used in this study to determine fitting mode
+    (Section~\ref{sec:identifiability}; log scale). Panels (b) and (c)
+    disagree for Landsat-8: $\kappa$ places it on the unidentifiable
+    side of the conventional 0.35 cutoff, while the bootstrap criterion
+    shows it is in fact the most stable of the three cases.}
     \label{fig:identifiability}
 \end{figure}
  
@@ -782,39 +875,56 @@ Landsat-8 and Sentinel-2 are calibrated and reported as separate
 single-sensor models throughout (Section~\ref{sec:identifiability}); a
 pooled single-$A_p$ fit across both sensors was tested and found to
 underperform either sensor alone (Section~\ref{sec:disc_pooling}) and
-is not used as the primary retrieval.
+is not used as the primary retrieval. Fitting mode (one- vs.\
+two-parameter) is determined per sensor by the bootstrap stability
+criterion of Section~\ref{sec:identifiability}, not by the screening
+ratio $\kappa$ alone.
  
 Table~\ref{tab:pajarales_cv} presents in-sample and leave-one-station-out
-cross-validated performance for each sensor. For Landsat-8 ($n=110$),
-the model achieves in-sample $R^2 = 0.693$ (RMSE $= 60.3$~mg/L) and
-leave-one-station-out $R^2 = 0.662$ (RMSE $= 63.3$~mg/L). For
-Sentinel-2 ($n=130$, corrected reflectance), the model achieves
-in-sample $R^2 = 0.419$ (RMSE $= 56.6$~mg/L) and leave-one-station-out
-$R^2 = 0.372$ (RMSE $= 73.2$~mg/L, $n=56$ scored observations from
-stations with usable coordinates). For both sensors, $A_p$ is fitted
-once per sensor on the full Pajarales matchup set, with $C_p$ fixed at
-$C_{p,\text{upper}} = 0.55$ (Landsat-8: $A_p = 1476.2$; Sentinel-2:
-$A_p = 533.2$); the leave-one-station-out figures refit $A_p$ on each
-training fold using the same fixed $C_p$.
+cross-validated performance for each sensor. For Landsat-8 ($n=110$,
+$n_{\text{curv}}=73$, $\mathrm{CV}(C_p)=4.6\%$ across bootstrap
+resamples), the bootstrap criterion supports a free two-parameter fit:
+$A_p = 1023.0$, $C_p = 0.2732$, achieving in-sample $R^2 = 0.803$
+(RMSE $= 48.3$~mg/L) and leave-one-station-out $R^2 = 0.784$
+(RMSE $= 50.5$~mg/L). This is a substantially better-fitting model than
+a fixed-$C_p$ anchor at $C_{p,\text{upper}}=0.55$ would give
+($R^2_{\text{LOSO}} = 0.662$, RMSE $= 63.3$~mg/L, the value obtained
+when $C_p$ is constrained to the same anchor used for CGSM,
+Section~\ref{sec:disc_ident}); the free fit is retained as Landsat-8's
+primary calibration because it is both better-fitting and bootstrap-stable.
+For Sentinel-2 ($n=130$, corrected reflectance, $n_{\text{curv}}=109$,
+$\mathrm{CV}(C_p)=8.7\%$), the bootstrap distribution of $C_p$ is
+likewise tight, but its central tendency sits at the imposed boundary
+$C_{p,\text{upper}}=0.55$ rather than an interior value; this fit is
+reported as effectively one-parameter
+(Section~\ref{sec:identifiability}): $A_p = 533.2$, $C_p = 0.55$,
+achieving in-sample $R^2 = 0.419$ (RMSE $= 56.6$~mg/L) and
+leave-one-station-out $R^2 = 0.372$ (RMSE $= 73.2$~mg/L, $n=56$ scored
+observations from stations with usable coordinates). The
+leave-one-station-out figures refit each sensor's parameters
+(including $C_p$, for Landsat-8) on each training fold using the same
+identifiability-driven fitting mode determined from the full dataset.
  
 \begin{table}[ht]
 \centering
 \caption{TSS retrieval performance for Pajarales, by sensor
-(Landsat-8, $n=110$; Sentinel-2, $n=130$, corrected reflectance), one-
-parameter NECHAD ($C_p = C_{p,\text{upper}} = 0.55$ fixed,
-Section~\ref{sec:identifiability}). Leave-one-station-out CV is the
-primary reported metric; in-sample is shown for reference only.}
+(Landsat-8, $n=110$, free two-parameter fit; Sentinel-2, $n=130$,
+corrected reflectance, boundary-converged and reported as
+one-parameter), NECHAD fitting mode determined by the bootstrap
+identifiability criterion of Section~\ref{sec:identifiability}.
+Leave-one-station-out CV is the primary reported metric; in-sample is
+shown for reference only.}
 \label{tab:pajarales_cv}
 \small
-\begin{tabular}{p{4.6cm}cccc}
+\begin{tabular}{p{4.6cm}cccccc}
 \toprule
-Sensor / Evaluation & $A_p$ & $R^2$ & RMSE (mg\,L$^{-1}$) & $n$ \\
+Sensor / Evaluation & $A_p$ & $C_p$ & $R^2$ & RMSE (mg\,L$^{-1}$) & $n$ \\
 \midrule
-Landsat-8, in-sample (reference)        & 1476.2 & 0.693 & 60.3 & 110 \\
-Landsat-8, leave-one-station-out (primary) & 1476.2 & 0.662 & 63.3 & 110 \\
+Landsat-8, in-sample (reference)        & 1023.0 & 0.2732 & 0.803 & 48.3 & 110 \\
+Landsat-8, leave-one-station-out (primary) & 1023.0 & 0.2732 & 0.784 & 50.5 & 110 \\
 \addlinespace
-Sentinel-2, in-sample (reference)       & 533.2  & 0.419 & 56.6 & 130 \\
-Sentinel-2, leave-one-station-out (primary) & 533.2 & 0.372 & 73.2 & 56 \\
+Sentinel-2, in-sample (reference)       & 533.2  & 0.55 & 0.419 & 56.6 & 130 \\
+Sentinel-2, leave-one-station-out (primary) & 533.2 & 0.55 & 0.372 & 73.2 & 56 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -827,8 +937,9 @@ record for each model's predictive performance.
     \centering
     \includegraphics[width=0.95\linewidth]{images/fig2_pajarales_cv_scatter.png}
     \caption{Observed vs.\ predicted TSS at Pajarales under
-    leave-one-station-out cross-validation. Left: Landsat-8
-    ($R^2 = 0.662$, $n=110$). Right: Sentinel-2, corrected reflectance
+    leave-one-station-out cross-validation. Left: Landsat-8, free
+    $C_p$ ($R^2 = 0.784$, $n=110$). Right: Sentinel-2, corrected
+    reflectance, fixed $C_p$
     ($R^2 = 0.372$, $n=56$) -- the primary reported performance metric
     for each sensor, since it tests generalisation to monitoring
     stations unseen during fitting. Dashed line: 1:1 relationship.}
@@ -910,22 +1021,28 @@ Annual median TSS was highest in 2015--2016 and lowest in 2024
  
 Table~\ref{tab:transferability} presents leave-one-station-out
 cross-validated performance for the four transferability scenarios,
-using the Landsat-8 calibration as the transfer source
-($A_p = 1476.2$, $C_p = 0.55$, Table~\ref{tab:pajarales_cv}). Scenario~A
-(direct transfer, no local adjustment at all) achieves $R^2 = 0.448$ --
-a usable, zero-local-data baseline. Performance improves with the
-amount of local adaptation permitted: Scenario~C (partial transfer,
-$C_p$ fixed, $A_p$ refit on CGSM) reaches $R^2 = 0.531$; Scenario~B
-(full local recalibration, both parameters free) reaches $R^2 = 0.639$,
-closely approaching the Landsat-8 calibration ceiling at Pajarales
-itself ($R^2 = 0.662$, Table~\ref{tab:pajarales_cv}); and Scenario~D
-(local GBR, a non-physical ceiling) reaches $R^2 = 0.681$. The overall
-ordering, A~$<$~C~$<$~B~$\lesssim$~source~$<$~D, is consistent with
-sane, bounded degradation under transfer: no scenario exceeds the
-source calibration's own cross-validated performance by a margin that
-would suggest an artefact of the validation procedure rather than
-genuine domain similarity. MAPE is high across all four scenarios
-(147--213\%), driven by a small number of very low in-situ TSS values
+using the Landsat-8 free-$C_p$ calibration as the transfer source
+($A_p = 1023.0$, $C_p = 0.2732$, Table~\ref{tab:pajarales_cv}).
+Scenario~A (direct transfer, no local adjustment at all) achieves
+$R^2 = 0.262$ -- markedly weaker than direct transfer from the
+fixed-$C_p$ ($C_p = C_{p,\text{upper}} = 0.55$) Landsat-8 calibration
+used in earlier analysis of this dataset ($R^2 = 0.448$), despite the
+free-$C_p$ source calibration fitting Pajarales itself substantially
+better ($R^2_{\text{LOSO}} = 0.784$ vs.\ $0.662$). This is not an
+inconsistency: CGSM's observed reflectance occupies a larger fraction
+of the free-$C_p$ source curve's dynamic range ($\rho_{\max}/C_p =
+0.071/0.2732 = 0.260$) than of the fixed-$C_p$ curve
+($0.071/0.55 = 0.129$), so the sharper curvature of the better-fitting
+source model amplifies, rather than dampens, the effect of any
+cross-site reflectance mismatch when applied without local adjustment
+(Section~\ref{sec:disc_transfer}). Performance recovers once any local
+data are used: Scenario~C (partial transfer, $C_p$ fixed at the source
+value $0.2732$, $A_p$ refit on CGSM) reaches $R^2 = 0.563$; Scenario~B
+(full local recalibration, both parameters free on CGSM data, and
+therefore independent of which Pajarales source calibration is used)
+reaches $R^2 = 0.639$; and Scenario~D (local GBR, a non-physical
+ceiling) reaches $R^2 = 0.681$. MAPE is high across all four scenarios
+(108--200\%), driven by a small number of very low in-situ TSS values
 (below 3~$mg/L$) at which even a small absolute error translates into a
 very large percentage error; RMSE and bias are more representative of
 practical performance at this site.
@@ -935,7 +1052,8 @@ practical performance at this site.
 \caption{Leave-one-station-out cross-validated TSS retrieval
 performance under four transferability scenarios for the CGSM
 ($n = 74$, Landsat-8, four monitoring stations), transferring from the
-Pajarales Landsat-8 calibration ($A_p = 1476.2$, $C_p = 0.55$).}
+Pajarales Landsat-8 free-$C_p$ calibration ($A_p = 1023.0$,
+$C_p = 0.2732$).}
 \label{tab:transferability}
 \small
 \begin{tabular}{p{5.4cm}ccccc}
@@ -944,11 +1062,11 @@ Scenario & $R^2$ & RMSE & Bias & MAPE & $n$\\
          &       & (mg\,L$^{-1}$) & (mg\,L$^{-1}$) & (\%) & \\
 \midrule
 A.\ Direct transfer &
-  0.448 & 41.4 & $-9.5$  & 146.8 & 74 \\
+  0.262 & 47.9 & $-22.3$  & 108.4 & 74 \\
 B.\ Local NECHAD (free $C_p$) &
   0.639 & 33.5 & $+3.7$  & 152.8 & 74 \\
 C.\ Partial transfer (proposed) &
-  0.531 & 38.2 & $+9.2$  & 212.8 & 74 \\
+  0.563 & 36.8 & $+8.3$  & 200.3 & 74 \\
 D.\ Local GBR &
   \textbf{0.681} & \textbf{31.5} & $-0.6$  & 169.3 & 74 \\
 \bottomrule
@@ -960,10 +1078,13 @@ D.\ Local GBR &
     \includegraphics[width=0.95\linewidth]{images/fig3_transferability_scenarios.png}
     \caption{Leave-one-station-out cross-validated observed vs.\
     predicted TSS under four transferability scenarios (CGSM, $n = 74$,
-    four monitoring stations). Performance increases with the amount of
-    local adaptation permitted (A $<$ C $<$ B $<$ D), with B closely
-    approaching the Pajarales Landsat-8 source calibration
-    ($R^2 = 0.662$) and no scenario exceeding it.}
+    four monitoring stations), transferring from the bootstrap-validated
+    free-$C_p$ Landsat-8 source calibration ($A_p=1023.0$,
+    $C_p=0.2732$). Performance is weakest for direct transfer (a) and
+    increases once any local data are used (b--d); see
+    Section~\ref{sec:disc_transfer} for why direct transfer from this
+    sharper source performs worse than from a flatter source
+    calibration would.}
     \label{fig:transferability}
 \end{figure}
  
@@ -1045,40 +1166,88 @@ $10^7$ reported for this system reflect optimiser collapse, not valid
 calibration. The claim that those values ``remain numerically stable''
 is incorrect; an unidentifiable parameter cannot provide reliable
 estimates even within the calibration domain.
-The correct procedure when $\kappa < 0.35$ is to fix $C_p$ to a value
-that is both externally determined and safely outside the system's own
-observed reflectance range -- not necessarily the published Nechad
+
+A central methodological finding of this study is that the commonly
+used screening ratio $\kappa = \rho_{\max}/C_{p,\text{upper}}$, with a
+conventional cutoff near 0.35, does not reliably predict identifiability
+on this system's own data, and we recommend against adopting a fixed
+$\kappa$ threshold from the literature without independently validating
+it. Tested directly via bootstrap resampling
+(Section~\ref{sec:identifiability}), Landsat-8 at Pajarales
+($\kappa = 0.343$, nominally just below the conventional threshold) in
+fact supports a stable free-parameter fit ($\mathrm{CV}(C_p) = 4.6\%$
+across 50 bootstrap resamples), while CGSM ($\kappa = 0.13$, well below
+the threshold by a wide margin) does not
+($\mathrm{CV}(C_p) = 49.6\%$). The reason is that $\kappa$ is a
+single-point statistic -- it depends only on the single largest observed
+reflectance value, $\rho_{\max}$ -- and does not capture how many
+observations actually populate the curvature-informative region of the
+Nechad curve. A dataset can have a $\rho_{\max}$ that nominally clears
+the threshold while containing very few observations near it (CGSM:
+only 6 of 74 observations satisfy $\rho_i \geq 0.1\,C_{p,\text{upper}}$,
+Section~\ref{sec:identifiability}), in which case $\kappa$ overstates
+identifiability; conversely, a dataset can have a $\rho_{\max}$ that
+nominally falls short while still containing a large, well-distributed
+population of observations approaching that maximum (Landsat-8: 73 of
+110), in which case $\kappa$ understates it. We therefore replace the
+fixed $\kappa$ cutoff with a direct test of what identifiability
+actually means operationally: whether the fitted $C_p$ is stable under
+resampling of the available data, assessed here via $\mathrm{CV}(C_p)$
+across bootstrap resamples of the free two-parameter fit. This
+criterion is more expensive to compute than $\kappa$ -- it requires
+refitting the model dozens of times rather than a single ratio
+calculation -- but it tests the property of interest directly rather
+than through an intermediate, single-point proxy. We are not aware of
+a closed-form derivation of $\kappa = 0.35$ from the Nechad equation's
+geometry, and emphasise that, in our hands, this value functioned as
+an inherited assumption rather than a validated property of the model;
+the bootstrap criterion adopted here does not depend on any analogous
+externally chosen constant.
+
+The correct procedure when the bootstrap criterion does not support a
+free fit (here, CGSM only) is to fix $C_p$ to a value that is both
+externally determined and safely outside the system's own observed
+reflectance range -- not necessarily the published Nechad
 et~al.\ \citeyearpar{NECHAD2010854} value, which can itself sit too
 close to, or inside, a given system's reflectance range and destabilise
 the fit. In this study, $C_p$ is fixed to the band's physical upper
-bound, $C_{p,\text{upper}}$, for this reason, and $A_p$ is estimated
-analytically. The same caution extends to the nominal $\kappa \geq 0.35$
-case: a free two-parameter fit that converges to the $C_p$ boundary
-regardless of initialisation (Sentinel-2 at Pajarales,
-Section~\ref{sec:identifiability}) is, in practice, also an
-unidentified $C_p$, and is best treated and reported as a
+bound, $C_{p,\text{upper}}$, for CGSM for this reason, and $A_p$ is
+estimated analytically. The same caution extends to nominally
+bootstrap-stable cases that nonetheless converge to the imposed $C_p$
+boundary: Sentinel-2 at Pajarales is stable in the variance sense
+($\mathrm{CV}(C_p) = 8.7\%$) but converges to $C_{p,\text{upper}}$
+regardless of initialisation
+(Section~\ref{sec:identifiability}), which is, in practice, also an
+unidentified interior $C_p$, and is best treated and reported as a
 one-parameter fit rather than presented with the appearance of a
 genuinely free second parameter. We recommend that future calibration
-studies routinely compute and report $\kappa$ alongside model
-parameters, verify that any fixed-$C_p$ anchor remains above the
-system's observed $\rho_{\max}$, and check optimiser convergence
-behaviour across multiple starting values even when $\kappa$ nominally
-clears the identifiability threshold.
+studies validate any adopted identifiability threshold -- $\kappa$ or
+otherwise -- against their own data via a direct stability test before
+using it to drive calibration decisions, verify that any fixed-$C_p$
+anchor remains above the system's observed $\rho_{\max}$, and check
+optimiser convergence behaviour across multiple starting values
+regardless of where a screening ratio places the dataset relative to a
+borrowed cutoff.
  
  
 \subsection{Model Performance and Uncertainty Sources}
 \label{sec:disc_performance}
  
-For Landsat-8, in-sample $R^2 = 0.693$ at Pajarales is consistent with,
+For Landsat-8, in-sample $R^2 = 0.803$ at Pajarales is consistent with,
 and slightly exceeds, the leave-one-station-out result
-($R^2 = 0.662$), the expected direction of change when moving from
+($R^2 = 0.784$), the expected direction of change when moving from
 training-set fit to genuine spatial generalisation. The temporal
 sensitivity analysis (Section~\ref{sec:sensitivity}) showed that
 cross-validated performance is highest at a tighter matchup window
 than the one adopted, declining smoothly rather than abruptly as the
 window widens to $\pm$2.84~days; the wider window was retained for
 sample size and per-station fold stability (Section~\ref{sec:matchup}),
-not because it maximises cross-validated $R^2$ in isolation. There is
+not because it maximises cross-validated $R^2$ in isolation. (That
+analysis used a fixed-$C_p$ pipeline, Section~\ref{sec:sensitivity};
+its absolute $R^2$ values are not directly comparable to the free-$C_p$
+calibration figures reported here, though the qualitative shape of the
+window-sensitivity curve is unaffected by which fitting mode is used.)
+There is
 no significant relationship between temporal lag and absolute residual
 within the adopted window ($r = -0.20$, $p = 0.08$), supporting the
 temporal weighting strategy (Equation~\ref{eq:weight}) as the
@@ -1092,7 +1261,8 @@ An uncorrected Collection-2 Level-2 Landsat-8 reflectance product (raw
 digital numbers rescaled by the standard USGS linear transform, with
 six aerosol-contaminated acquisitions removed, $n=104$) was evaluated
 as an alternative to the ACOLITE-processed product used throughout this
-study. The uncorrected product achieved leave-one-station-out
+study, using the fixed-$C_p$ fitting mode for direct comparability with
+the originally reported figures. The uncorrected product achieved leave-one-station-out
 $R^2 = 0.566$--$0.568$ (depending on one- versus two-parameter fitting
 mode, which converged to the same result), compared with $R^2 = 0.662$
 for the ACOLITE product on the same Pajarales stations. At matched
@@ -1111,33 +1281,65 @@ this study.
 \subsection{Physical Interpretation of Transferability Results}
 \label{sec:disc_transfer}
  
-The leave-one-station-out results show a gradient consistent with
-genuine, bounded transfer rather than either catastrophic failure or
-an implausible inversion: performance improves as more of the model is
-allowed to adapt locally, from direct transfer ($R^2 = 0.448$, no
-local data used at all) through partial transfer ($R^2 = 0.531$, only
-$A_p$ re-estimated locally) to full local recalibration
-($R^2 = 0.639$, both parameters free, closely approaching but not
-exceeding the Pajarales source calibration's own $R^2 = 0.662$) and the
-non-physical GBR ceiling ($R^2 = 0.681$). Critically, no scenario
-exceeds the source calibration's cross-validated performance, which
-would have been the more concerning pattern, since a transfer target
-cannot legitimately outperform the model it was transferred from
-without indicating either an evaluation artefact or an unrepresentative
-target sample.
+The central finding of the transferability analysis is that the
+better-fitting Pajarales source calibration (free $C_p = 0.2732$,
+$R^2_{\text{LOSO}} = 0.784$) transfers \emph{worse} under Scenario~A
+(direct transfer, no local adjustment, $R^2 = 0.262$) than the
+flatter, fixed-$C_p$ calibration used in earlier analysis of this
+dataset (Section~\ref{sec:results_transfer}) did. This is not a
+contradiction, and is, on inspection, the expected consequence of
+curve geometry rather than an artefact: $C_p$ sets the reflectance
+value at which the Nechad curve's denominator approaches zero and
+predicted TSS grows without bound, so a smaller $C_p$ produces a
+sharper, more curved relationship between reflectance and TSS over any
+given reflectance range below it. CGSM's observed reflectance occupies
+26.0\% of the source curve's domain under the free-$C_p$ calibration
+($\rho_{\max}/C_p = 0.071/0.2732$) versus only 12.9\% under the
+fixed-$C_p$ calibration ($0.071/0.55$); the sharper curve is therefore
+being evaluated over a relatively larger fraction of its own
+curvature, where small reflectance discrepancies between sites
+translate into proportionally larger TSS discrepancies than the same
+reflectance offset would produce on a flatter curve. A model that fits
+its own calibration domain better by being more sharply curved is, by
+the same property, more sensitive to exactly the kind of cross-site
+reflectance offset documented throughout this study (ACOLITE-vs-raw
+noise, Section~\ref{sec:disc_acolite_vs_raw}; the L8--S2 offset,
+Section~\ref{sec:disc_pooling}) when applied to a new site without
+local adjustment. We are not aware of this trade-off -- between
+in-domain calibration accuracy and zero-adjustment transfer
+robustness -- having been previously demonstrated for the Nechad model
+in a tropical lagoon system, and consider it one of this study's more
+transferable methodological findings: model selection for a
+calibration site should consider not only how well a candidate fit
+performs in-domain, but how its curvature parameter interacts with the
+likely reflectance range of any intended transfer target.
+
+Once any local CGSM data are used to adapt the model, this sensitivity
+is substantially mitigated and performance recovers: partial transfer
+(Scenario~C, $C_p$ fixed at the source value $0.2732$, $A_p$ refit
+locally) reaches $R^2 = 0.563$; full local recalibration (Scenario~B,
+both parameters free on CGSM data, and therefore identical regardless
+of which Pajarales source calibration motivated the framework) reaches
+$R^2 = 0.639$; and the non-physical GBR ceiling (Scenario~D) reaches
+$R^2 = 0.681$. Scenario~B's free-$C_p$ fit on CGSM data converges to
+$C_p \approx 0.11$--$0.13$ across leave-one-station-out folds --
+closer to CGSM's own $\rho_{\max}$ than to either candidate Pajarales
+source value -- which is itself consistent with the curvature
+argument above: a $C_p$ value tuned to the target's own, narrower
+reflectance range gives the fitted curve usable local curvature
+without the heightened cross-site sensitivity that a steeper,
+externally-derived $C_p$ would carry into the same domain.
 
 Scenario~C does not outperform full local recalibration at this site,
-unlike what its physical motivation (a shared, sediment-provenance-
-determined $C_p$) might suggest. The explanation is visible in the
-reflectance domain itself: CGSM's observed $\rho_{B4}$ range
-(0.012--0.071) sits almost entirely below 13\% of $C_{p,\text{upper}}$,
-so anchoring $C_p$ there leaves the Nechad curve close to linear over
-CGSM's actual operating range and removes the curvature term that
-constrains the fit; the locally free $C_p$ in Scenario~B instead
-converges to $C_p \approx 0.11$--$0.13$ across leave-one-station-out
-folds, much closer to CGSM's own $\rho_{\max}$, giving the fitted curve
-usable curvature within the observed domain even though this $C_p$ is
-no longer the value Pajarales would suggest. The practical case for
+contrary to what its physical motivation (a shared, sediment-provenance-
+determined $C_p$) might suggest. CGSM's observed $\rho_{B4}$ range
+(0.012--0.071) corresponds to 4--26\% of the source $C_p = 0.2732$,
+so anchoring $C_p$ there still leaves the Nechad curve under-using its
+available curvature over CGSM's actual operating range relative to a
+$C_p$ tuned to CGSM itself; Scenario~B's locally free $C_p$ instead
+converges to $C_p \approx 0.11$--$0.13$, which sits even closer to
+CGSM's own $\rho_{\max} = 0.071$ than the source value does. The
+practical case for
 Scenario~C is therefore not an accuracy advantage at this particular
 site, but the prospect of better generalisation to a \emph{further}
 transfer site with an even narrower reflectance range or fewer local
@@ -1186,7 +1388,11 @@ predicting the sample mean) to $0.372$ (corrected;
 Table~\ref{tab:pajarales_cv}).
 
 This correction substantially narrows, but does not close, the
-performance gap with Landsat-8 ($R^2_{\text{LOSO}} = 0.662$). The
+performance gap with Landsat-8 ($R^2_{\text{LOSO}} = 0.784$, the
+free-$C_p$ primary calibration, Table~\ref{tab:pajarales_cv}; the gap is
+wider against this calibration than against the flatter, fixed-$C_p$
+Landsat-8 fit used in earlier analysis of this dataset
+$R^2_{\text{LOSO}} = 0.662$). The
 residual gap does not appear to be explained by simple band-ratio
 transformations (B4/B3, B4/(B2+B3+B4), NDTI-type indices): none of
 these improved correlation with TSS relative to the raw B4 band for
@@ -1214,16 +1420,38 @@ modelling. The findings are reported as preliminary evidence that
 motivates a specific, tractable next step (Section~\ref{sec:disc_limits})
 rather than as a completed mechanistic analysis.
 
-The significant negative annual S1--TSS correlation ($r = -0.766$,
-$p = 0.010$) implies a dilution mechanism: years with greater
-inundation correspond to lower TSS owing to sustained freshwater
-discharge; years with contracted extent correspond to higher TSS
-through concentration effects and wind-driven resuspension
-\citep{Blanco2006}. The diverging trends --- S1 area increasing while
+The annual S1--TSS correlation ($r = -0.766$, $p = 0.010$, $n = 10$
+annual points) is consistent with a dilution mechanism: years with
+greater inundation correspond to lower TSS owing to sustained
+freshwater discharge; years with contracted extent correspond to
+higher TSS through concentration effects and wind-driven resuspension
+\citep{Blanco2006}. This interpretation should, however, be treated
+with caution: both S1 water area and reflectance/TSS show significant
+monotonic trends over the same 2015--2025 period
+(Mann--Kendall $\tau = +0.18$ for S1 area, $\tau = -0.27$ to $-0.31$
+for reflectance), and with only $n = 10$ annual points, a bivariate
+Pearson or Spearman correlation between two co-trending series cannot,
+on its own, distinguish a genuine dilution relationship from a shared,
+possibly independent long-term drift in each series (e.g.\ a regional
+hydroclimatic shift affecting both variables without either causing
+the other). Disentangling these requires either detrending both series
+prior to correlation (e.g.\ correlating first differences or
+residuals from each series' own linear trend) or a partial correlation
+controlling for time directly; neither was performed for this
+manuscript draft, since it requires re-analysis of the underlying
+annual S1 area and TSS series rather than the summary statistics
+reported here, and is flagged explicitly as an open item in
+Section~\ref{sec:disc_limits} rather than presented as resolved. The
+diverging trends --- S1 area increasing while
 reflectance declines --- are inconsistent with a resuspension-dominated
 system and point to a reduction in Magdalena River sediment load,
 possibly attributable to upstream dam construction, reforestation, or
-changing catchment land use. Both patterns are consistent with
+changing catchment land use; this trend-level interpretation does not
+depend on the bivariate correlation and is comparatively more robust
+to the confound described above, since it compares the sign and
+significance of two independent Mann--Kendall trend tests rather than
+correlating the two series against each other directly. Both patterns
+are consistent with
 hydrological mechanisms reported elsewhere in the CGSM literature
 \citep{Blanco2006,Jaramillo2018}; quantifying their relative
 contributions requires a continuous, model-derived TSS series from the
@@ -1241,24 +1469,35 @@ seasonal signal at the CGSM ($p = 0.80$) --- have direct management
 implications: elevated dry-season turbidity in Pajarales is driven by
 wind-driven resuspension and would not be mitigated by hydrological
 connectivity restoration in the same way as discharge-driven turbidity.
-Scenario~A (direct transfer) already provides a usable zero-local-data
-baseline ($R^2 = 0.448$) for rapid deployment to a new CGSM-like
-sub-basin; Scenario~C offers a lower-data-requirement option requiring
-only local $A_p$ recalibration, at an estimated cost of approximately
-20--30 co-located satellite--\textit{in situ} pairs per new sector,
-should the modest accuracy gain over direct transfer
-(Section~\ref{sec:disc_transfer}) be considered worthwhile relative to
-the data collection cost.
+Unlike the fixed-$C_p$ source calibration evaluated in earlier analysis
+of this dataset, the bootstrap-validated free-$C_p$ Landsat-8 source
+calibration does not transfer well with zero local adjustment
+($R^2 = 0.262$, Section~\ref{sec:results_transfer}), so Scenario~A is
+not recommended as a stand-alone operational baseline at this site.
+Scenario~C offers a substantially better lower-data-requirement option,
+requiring only local $A_p$ recalibration with $C_p$ fixed at the
+source value, at an estimated cost of approximately 20--30 co-located
+satellite--\textit{in situ} pairs per new sector
+(Section~\ref{sec:disc_transfer}); where this minimum local sample can
+be collected, full local recalibration (Scenario~B) provides a further,
+larger accuracy gain at comparable data cost and is the recommended
+default whenever any local matchups are available, with Scenario~A
+reserved only for genuinely zero-data reconnaissance estimates.
  
  
 \subsection{Limitations and Future Research Directions}
 \label{sec:disc_limits}
  
-A fundamental limitation is that all Landsat-8 and CGSM data fall
-below $\kappa = 0.35$, making the one-parameter calibration reliant
+A fundamental limitation is that CGSM data do not support a free
+two-parameter fit by the bootstrap criterion adopted in this study
+(Section~\ref{sec:identifiability}), making its one-parameter
+calibration reliant
 on the externally-fixed $C_p$ anchor (here, $C_{p,\text{upper}}$) being
-appropriate for this system; this was checked directly for Pajarales
-(Section~\ref{sec:disc_ident}) but not yet re-verified for CGSM. CGSM
+appropriate for this system; this anchor choice was checked directly
+against Pajarales' own observed reflectance range
+(Section~\ref{sec:disc_ident}) but cannot be analogously checked for
+CGSM, since CGSM's narrow reflectance range is precisely why it cannot
+support an independent free fit in the first place. CGSM
 validation remains limited to four stations ($n = 74$), and performance
 is therefore reported as point estimates from leave-one-station-out
 cross-validation across these four stations rather than as bootstrap
@@ -1283,6 +1522,28 @@ $\pm$2.5-day window adopted throughout this study is therefore a
 sample-size and fold-stability choice within the available range,
 not a verified global optimum.
 
+A further limitation concerns the bootstrap identifiability criterion
+itself (Section~\ref{sec:identifiability}): although it is shown here
+to outperform a fixed $\kappa$ cutoff on this study's own three
+site--sensor datasets, it has been validated only against those three
+cases, and the 10\% $\mathrm{CV}(C_p)$ threshold used to separate
+stable from unstable fits is, like the $\kappa = 0.35$ value it
+replaces, a working choice rather than one derived from first
+principles; it should be re-examined as this framework is applied to
+additional systems, ideally alongside a closed-form sensitivity
+analysis of the Nechad equation that does not yet exist, to the
+authors' knowledge, in the published literature. The single most
+consequential downstream effect of adopting this criterion is that
+Landsat-8's primary calibration changed from a fixed-$C_p$
+($C_p=0.55$) to a free-$C_p$ ($C_p=0.27$) fit
+(Section~\ref{sec:results_calibration}), which in turn changed
+Scenario~A's transfer performance substantially
+(Section~\ref{sec:disc_transfer}); a reader applying this framework
+with a different stability threshold should expect at least this much
+sensitivity in the headline calibration and transfer numbers, and is
+encouraged to report results for more than one threshold choice where
+feasible.
+
 A second limitation concerns Scenario~C specifically: its proposed
 operational advantage rests on a physical argument (shared sediment
 provenance constraining $C_p$) that this single-target dataset cannot
@@ -1297,8 +1558,15 @@ the identified atmospheric-correction artefact
 (Section~\ref{sec:disc_s2gap}), but a residual gap relative to
 Landsat-8 remains, and its exact physical mechanism still requires
 investigation via near-simultaneous L8--S2 overpasses with
-\textit{in-water} radiometric measurements. The S1 hydroclimatic
-analysis is constrained by bounding box geometry effects; a precise
+\textit{in-water} radiometric measurements. The annual S1--TSS
+correlation reported in Section~\ref{sec:results_hydro} is subject to
+the shared-trend confound discussed in
+Section~\ref{sec:disc_hydro}: with only $n=10$ annual points and both
+series exhibiting significant independent long-term trends, a
+detrended or partial correlation -- not performed in this manuscript
+draft -- is needed before the dilution-mechanism interpretation can be
+considered confirmed rather than consistent with the data. The S1 hydroclimatic
+analysis is also constrained by bounding box geometry effects; a precise
 INVEMAR water-mask shapefile would improve monthly TSS--area
 correlations. The matched monthly record ($n = 27$ pairs) supports
 bivariate correlations and trend detection but not regression
@@ -1328,24 +1596,37 @@ are:
  
 \begin{enumerate}
  
-    \item A formal identifiability criterion
-    ($\kappa = \rho_{\max}/C_{p,\mathrm{upper}}$) reveals that Landsat-8
-    and CGSM data fall below $\kappa = 0.35$, and that Sentinel-2,
-    although nominally above this threshold, converges its free $C_p$
-    to the same boundary value regardless of optimiser initialisation
-    -- making free two-parameter Nechad fitting statistically
-    inappropriate for all three site--sensor combinations examined.
-    Prior $C_p$ values of order $10^7$ reflect optimiser collapse. The
-    closed-form one-parameter estimator is the correct calibration
-    procedure for all three, with $C_p$ fixed to the band's physical
-    upper bound ($C_{p,\mathrm{upper}}$) rather than the literature
-    Nechad et~al.\ \citeyearpar{NECHAD2010854} value, which was found
-    to sit inside this system's own observed reflectance range and to
-    destabilise the fit (Section~\ref{sec:disc_ident}).
+    \item A widely used screening ratio for Nechad parameter
+    identifiability ($\kappa = \rho_{\max}/C_{p,\mathrm{upper}}$, with a
+    conventional cutoff near 0.35) was tested directly against this
+    study's own data and found unreliable: Landsat-8 at Pajarales
+    ($\kappa = 0.343$, nominally below threshold) in fact supports a
+    stable, bootstrap-validated free two-parameter fit, while CGSM
+    ($\kappa = 0.13$, well below threshold) does not. We replace the
+    fixed $\kappa$ cutoff with a direct bootstrap stability criterion
+    on the fitted $C_p$, which correctly separates the three
+    site--sensor cases examined and does not depend on an externally
+    borrowed constant. Sentinel-2 at Pajarales is bootstrap-stable in
+    the variance sense but converges its free $C_p$ to the imposed
+    upper boundary regardless of optimiser initialisation, and is
+    reported as effectively one-parameter for this reason. Prior $C_p$
+    values of order $10^7$ reported for this system reflect optimiser
+    collapse, not a property of any of the three identifiable/
+    unidentifiable cases examined here. Where the bootstrap criterion
+    does not support a free fit (CGSM only), $C_p$ is fixed to the
+    band's physical upper bound ($C_{p,\mathrm{upper}}$) rather than
+    the literature Nechad et~al.\ \citeyearpar{NECHAD2010854} value,
+    which was found to sit inside Pajarales' own observed reflectance
+    range and to destabilise the fit there
+    (Section~\ref{sec:disc_ident}). We recommend that any identifiability
+    threshold adopted from the literature be independently validated
+    against a system's own data, by direct resampling-based stability
+    testing, before it is used to drive calibration decisions.
  
     \item Leave-one-station-out cross-validated performance at
-    Pajarales is $R^2 = 0.662$ for Landsat-8 and $R^2 = 0.372$ for
-    Sentinel-2 (corrected reflectance), evaluated and reported as
+    Pajarales is $R^2 = 0.784$ for Landsat-8 (free two-parameter fit,
+    $A_p=1023.0$, $C_p=0.2732$) and $R^2 = 0.372$ for
+    Sentinel-2 (corrected reflectance, effectively one-parameter), evaluated and reported as
     separate single-sensor models; a pooled fit across both sensors
     underperforms either sensor alone (Section~\ref{sec:disc_pooling}).
     Random $k$-fold CV can itself be misleadingly optimistic when
@@ -1353,25 +1634,39 @@ are:
     spatial generalisation is better tested by holding out entire
     stations.
  
-    \item Direct parameter transfer (Scenario~A) achieves a usable
-    zero-local-data leave-one-station-out $R^2 = 0.448$ at the CGSM,
-    using the Landsat-8 calibration unchanged. Performance improves
-    with the amount of local adaptation permitted: partial transfer
-    ($C_p$ fixed, $A_p$ refit locally; $R^2 = 0.531$) and full local
-    recalibration (both parameters free; $R^2 = 0.639$), the latter
-    closely approaching but not exceeding the Pajarales source
-    calibration's own performance ($R^2 = 0.662$); a non-physical
-    Gradient Boosting ceiling reaches $R^2 = 0.681$. This ordering
-    (A~$<$~C~$<$~B~$\lesssim$~source~$<$~D), with no scenario exceeding
-    the source calibration, is the pattern expected of genuine,
-    physically bounded transfer.
+    \item Direct parameter transfer (Scenario~A) from this
+    bootstrap-validated Landsat-8 calibration achieves only
+    $R^2 = 0.262$ at CGSM with zero local adjustment -- substantially
+    weaker than direct transfer from a flatter, fixed-$C_p$ calibration
+    of the same Pajarales data ($R^2 = 0.448$), despite the free-$C_p$
+    source fitting Pajarales itself markedly better
+    ($R^2 = 0.784$ vs.\ $0.662$). This reveals a previously
+    undemonstrated trade-off: a sharper, better-fitting source
+    calibration is evaluated over a larger fraction of its own
+    curvature when applied to a narrower-range target domain (CGSM
+    occupies 26.0\% of the free-$C_p$ source curve's range but only
+    12.9\% of the flatter one's), making it more, not less, sensitive
+    to cross-site reflectance mismatch under zero-adjustment transfer
+    (Section~\ref{sec:disc_transfer}). Performance recovers once any
+    local data are used: partial transfer ($C_p$ fixed at the source
+    value, $A_p$ refit locally; $R^2 = 0.563$), full local
+    recalibration (both parameters free, fitting CGSM's own narrower
+    reflectance range directly; $R^2 = 0.639$), and a non-physical
+    Gradient Boosting ceiling ($R^2 = 0.681$). The practical
+    implication is that a source calibration's own in-domain accuracy
+    is not, by itself, a reliable predictor of its zero-adjustment
+    transfer performance, and the curvature of the source model
+    relative to the intended target's reflectance range should be
+    considered explicitly when selecting or reporting a transfer
+    source.
  
     \item Partial transfer (Scenario~C) does not exceed full local
     recalibration (Scenario~B) at this site, contrary to its physical
-    motivation: CGSM's narrow reflectance range sits almost entirely
-    below the shared $C_p$ anchor, leaving the curve close to linear
-    over the observed domain and removing the curvature information a
-    locally free $C_p$ can exploit. Its practical case rests on
+    motivation: CGSM's narrow reflectance range under-uses the
+    curvature available at the source-derived $C_p$ anchor relative to
+    a $C_p$ tuned to CGSM's own, narrower range (Scenario~B converges
+    to $C_p \approx 0.11$--$0.13$, closer to CGSM's own $\rho_{\max}$
+    than either candidate source value). Its practical case rests on
     requiring less local data and retaining physical interpretability
     for a \emph{further} transfer site, not on superior accuracy at
     CGSM itself.
@@ -1384,11 +1679,19 @@ are:
  
     \item Diverging long-term trends --- S1 water area increasing
     ($\tau = +0.18$, $p = 0.002$) while reflectance declines
-    ($\tau = -0.31/-0.27$, $p < 0.001$) --- together with a
-    significant negative annual S1--TSS correlation
-    ($r = -0.766$, $p = 0.010$), suggest a declining Magdalena River
-    sediment load as the dominant driver of long-term water clarity
-    improvement in the CGSM.
+    ($\tau = -0.31/-0.27$, $p < 0.001$) --- are independently robust
+    Mann--Kendall results and, together, suggest a declining Magdalena
+    River sediment load as a driver of long-term water clarity
+    improvement in the CGSM. The accompanying annual S1--TSS
+    correlation ($r = -0.766$, $p = 0.010$, $n=10$) is consistent with
+    a freshwater-dilution mechanism but should be interpreted with
+    caution, since both series exhibit significant independent
+    long-term trends over the same period and a bivariate correlation
+    between two co-trending series with only ten annual points cannot,
+    on its own, rule out a shared, possibly unrelated drift in each
+    series as the source of the association; a detrended or partial
+    correlation is needed to confirm the dilution interpretation
+    specifically (Section~\ref{sec:disc_hydro}).
  
     \item An atmospheric-correction artefact affecting a subset of
     Sentinel-2 acquisitions was identified and corrected, improving

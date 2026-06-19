@@ -16,6 +16,27 @@ package. Specifically:
   MAPE, Ap, Cp, kappa values) was computed from the data in `data/` using the
   scripts in `code/`, and cross-checked against saved JSON output before being
   written into the LaTeX. See `code/*.py` to reproduce any number in the text.
+- **Major revision: the κ = 0.35 identifiability threshold was found to be
+  unvalidated and wrong on this study's own data.** It was inherited as a
+  constant from the original project brief and never tested. Bootstrap
+  resampling (50 resamples per dataset, re-fitting the free 2-parameter
+  Nechad model each time) showed: Landsat-8 at Pajarales (κ=0.343, nominally
+  *below* the 0.35 cutoff) actually supports a **stable, better-fitting**
+  free-Cp calibration (Cp=0.2732, CV=4.6% across resamples,
+  LOSO R²=0.784 — up from R²=0.662 under the old fixed-Cp assumption); CGSM
+  (κ=0.129, well below 0.35) does **not** support a free fit
+  (CV=49.6%, driven by only 6 of 74 points sitting in the curvature-
+  informative region). κ is a single-point statistic (depends only on
+  ρ_max) and doesn't capture how many points actually populate the
+  curvature zone — that's what the new `n_curv` / bootstrap-CV criterion
+  measures directly. **This changes the paper's primary Landsat-8
+  calibration number, and required rerunning the full CGSM transfer
+  framework** (Table 5): Scenario A (direct transfer) actually gets
+  *worse* with the better source (R²=0.448→0.262), because a sharper,
+  better-fitting curve is more sensitive to cross-site reflectance offset
+  — a genuine, reportable finding, not a regression. See
+  `code/05_bootstrap_identifiability.py` and the rewritten
+  §2.5.2/§3.1/§3.2/§3.6/§4.1/§4.3 in `main.tex`.
 - **Note on Figure 1 / §2.3 / §4.2**: the original draft text claimed
   performance "improved consistently up to ±2.5 days and plateaued."
   Running the actual sensitivity sweep (`code/04_temporal_sensitivity.py`)

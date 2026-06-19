@@ -1,0 +1,4 @@
+name,n,rho_max,kappa,n_curv,cv_pct,mode
+L8 Pajarales,110,0.188775969,0.3432290345454545,73,4.556176621114023,"2-param (free, stable)"
+S2 Pajarales corrected,130,0.2488,0.4523636363636363,109,8.654413916721854,2-param (boundary->1-param)
+CGSM L8,74,0.071205,0.12946363636363636,6,49.63600385152478,"1-param (Cp fixed, unstable)"

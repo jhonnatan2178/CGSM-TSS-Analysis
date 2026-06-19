@@ -26,13 +26,15 @@ TAU = 1.0
 # ─────────────────────────────────────────────────────────────────
 # LOAD
 # ─────────────────────────────────────────────────────────────────
-cgsm = pd.read_csv('data/cgsm_landsat.csv', sep=';')
+cgsm = pd.read_csv('../data/cgsm_l8_acolite.csv', sep=';')
 cgsm['weight'] = np.exp(-np.abs(cgsm['delta_days'])/TAU)
 cgsm['station'] = cgsm['lat'].round(3).astype(str) + "," + cgsm['lon'].round(3).astype(str)
 
 # Source (Pajarales L8 ACOLITE) calibration, from our verified pipeline
-AP_SOURCE = 1476.2
-CP_SOURCE = 0.55
+# Source (Pajarales L8 ACOLITE) calibration, from bootstrap-validated free-Cp fit
+# (see 05_bootstrap_identifiability.py -- supersedes the earlier fixed-Cp=0.55 value)
+AP_SOURCE = 1023.0
+CP_SOURCE = 0.2732
 
 print(f"CGSM: n={len(cgsm)}, stations={cgsm['station'].nunique()}")
 print(cgsm['station'].value_counts())
@@ -140,13 +142,13 @@ print(f"\nPooled LOSO: R²={m_B['r2']:.3f}  RMSE={m_B['rmse']:.1f}  Bias={m_B['b
 # SCENARIO C: Partial transfer, Cp fixed (same anchor), Ap refit locally, LOSO
 # ─────────────────────────────────────────────────────────────────
 print("\n" + "="*60)
-print("SCENARIO C: Partial transfer (Cp=0.55 fixed, Ap refit on CGSM), LOSO-CV")
+print(f"SCENARIO C: Partial transfer (Cp={CP_SOURCE} fixed at source value, Ap refit on CGSM), LOSO-CV")
 print("="*60)
 pred_C = np.full(len(cgsm), np.nan)
 for held in stations:
     te = (cgsm['station']==held).values
     tr = ~te
-    Ap_f, Cp_f = fit_fixed_Cp(x_all[tr], y_all[tr], w_all[tr])
+    Ap_f, Cp_f = fit_fixed_Cp(x_all[tr], y_all[tr], w_all[tr], Cp=CP_SOURCE)
     pm_te = (x_all[te] >= RHO_MIN) & (x_all[te] < Cp_f*FIT_MARGIN)
     pte = np.full(te.sum(), np.nan)
     if pm_te.any():
@@ -190,11 +192,11 @@ cgsm['TSS_scenA'] = pred_A
 cgsm['TSS_scenB'] = pred_B
 cgsm['TSS_scenC'] = pred_C
 cgsm['TSS_scenD'] = pred_D
-cgsm.to_csv('/mnt/user-data/outputs/CGSM_transferability_results.csv', index=False)
+cgsm.to_csv('../data/cgsm_transferability_results.csv', index=False)
 
 import json
 summary = {
-    "source_calibration": {"Ap": AP_SOURCE, "Cp": CP_SOURCE, "source_loso_r2": 0.662},
+    "source_calibration": {"Ap": AP_SOURCE, "Cp": CP_SOURCE, "source_loso_r2": 0.784},
     "A_direct_transfer": m_A,
     "B_local_free_Cp": m_B,
     "C_partial_transfer": m_C,
