@@ -1076,9 +1076,25 @@ Section~\ref{sec:results_temporal}. Red circles indicate station-years where ann
 \label{sec:results_temporal}
  
 Dry-season observations (January--April) at Pajarales had a median of
-$75.3~mg/L$ compared with $29.3~mg/L$ during the wet season
-(July--November; Kruskal--Wallis $p < 0.001$). No significant seasonal
-differentiation was detected at the CGSM ($p = 0.80$). Monthly
+$80.2~mg/L$ ($n=112$) compared with $29.1~mg/L$ ($n=70$) during the wet season
+(July--November; Kruskal--Wallis $p < 0.001$). At the CGSM, the same
+comparison gives a median of $66.0~mg/L$ ($n=38$) in the dry season
+versus $39.0~mg/L$ ($n=14$) in the wet season (Kruskal--Wallis
+$p = 0.053$): directionally consistent with Pajarales' dry-season peak,
+and only narrowly short of conventional significance, rather than the
+flat, non-significant pattern reported in earlier analysis of this
+dataset. This revision traces to a date-parsing inconsistency in the
+earlier figure: a subset of Sentinel-2 matchup timestamps lack a time
+component and were silently excluded from the monthly aggregation,
+which did not affect Landsat-8-only CGSM in the same way but did affect
+the seasonal grouping pipeline more broadly; the figures reported here
+use the corrected monthly assignment for both sectors. CGSM's smaller
+sample size ($n=74$ total, distributed across 12 months) and considerably
+thinner per-month sampling (as few as $n=1$ in September and November)
+make this comparison more fragile than Pajarales' larger, more evenly
+distributed sample, and the result should be read as suggestive rather
+than conclusive of a real, smaller-magnitude seasonal signal at the
+CGSM. Monthly
 climatology at Pajarales peaks in March--April
 ($\sim 90--95~mg/L$) and reaches minimum values in November
 ($\sim 9~mg/L$), consistent with wind-driven resuspension during
@@ -1090,11 +1106,16 @@ Annual median TSS was highest in 2015--2016 and lowest in 2024
  
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\linewidth]{images/fig4_monthly_climatology.png}
+    \includegraphics[width=0.95\linewidth]{images/fig_monthly_climatology.png}
     \caption{Monthly TSS climatology from \textit{in situ} matchup
-    data. Top: Pajarales ($n = 240$, L8 + S2) --- significant
-    dry-season peak (March--April). Bottom: CGSM ($n = 74$, L8) ---
-    flat seasonal pattern (KW $p = 0.80$). Colours denote season.}
+    data. (a) Pajarales ($n = 240$, L8 + S2) --- significant
+    dry-season peak (March--April, Kruskal--Wallis $p<0.001$ dry vs.\
+    wet). (b) CGSM ($n = 74$, L8) --- directionally similar but weaker
+    and only borderline significant pattern (KW $p = 0.053$ dry vs.\
+    wet), likely limited by CGSM's thin per-month sampling. December is
+    shown as a separate transition category rather than grouped with
+    the dry season (Section~\ref{sec:results_temporal}). Colours denote
+    season.}
     \label{fig:climatology}
 \end{figure}
  
@@ -1558,8 +1579,9 @@ cannot yet provide.
  
 The satellite-based TSS framework provides a complementary tool to
 existing INVEMAR monitoring programmes. The distinct seasonal dynamics
---- dry-season peak at Pajarales ($p < 0.001$) but no significant
-seasonal signal at the CGSM ($p = 0.80$) --- have direct management
+--- a strong dry-season peak at Pajarales ($p < 0.001$) and a directionally
+similar but weaker, borderline-significant pattern at the CGSM
+($p = 0.053$, Section~\ref{sec:results_temporal}) --- have direct management
 implications: elevated dry-season turbidity in Pajarales is driven by
 wind-driven resuspension and would not be mitigated by hydrological
 connectivity restoration in the same way as discharge-driven turbidity.
@@ -1784,10 +1806,13 @@ are:
     physical rationale was designed for.
  
     \item Pajarales exhibits a statistically significant seasonal TSS
-    cycle (dry median 75.3 vs.\ wet 29.3~$mg/L$;
-    Kruskal--Wallis $p < 0.001$), while the CGSM shows no significant
-    seasonal differentiation ($p = 0.80$), reflecting contrasting
-    hydrodynamic regimes between the two sub-lagoon systems.
+    cycle (dry median 80.2 vs.\ wet 29.1~$mg/L$;
+    Kruskal--Wallis $p < 0.001$); the CGSM shows a directionally
+    similar but weaker, borderline-significant pattern
+    (dry median 66.0 vs.\ wet 39.0~$mg/L$; $p = 0.053$,
+    Section~\ref{sec:results_temporal}), likely limited by its smaller
+    and unevenly distributed monthly sample rather than reflecting a
+    qualitatively flat seasonal regime.
  
     \item Diverging long-term trends --- S1 water area increasing
     ($\tau = +0.18$, $p = 0.002$) while reflectance declines

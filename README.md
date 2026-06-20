@@ -67,13 +67,35 @@ $R^2$=0.53–0.64 depending on local adaptation.
 8. **S1–TSS dilution claim flagged** as confounded by shared long-term
    trends in both series — not yet resolved, would need the raw S1 time
    series to detrend properly (§4.6 `sec:disc_hydro`, not fabricated)
-9. **Station clustering tested** (`code/06_station_clustering.py`) and
-   **NIR-aware OWT tested** (`code/07_nir_owt_stratification.py`, from an
-   idea in an earlier exploratory script) — neither reliably improves
-   on the pooled baseline; closed
+9. **NIR-aware OWT tested** (`code/07_nir_owt_stratification.py`, from an
+   idea in an earlier exploratory script) — doesn't reliably improve on
+   the pooled baseline either; closed alongside the original OWT test (#5)
 10. **Power-law alternative tested and reported** (`code/08_powerlaw_comparison.py`,
-    §3.3 `sec:results_powerlaw`) — modest, real win for L8, not generalizable;
-    Nechad retained as primary model
+    §3.3 `sec:results_powerlaw`) — modest, real win for L8 (R²=0.796 vs
+    0.784, much lower bias), not generalizable to S2 or CGSM; Nechad
+    retained as primary model
+11. **CGSM seasonal significance was wrong due to a date-parsing bug** —
+   an earlier figure (from a prior session, never independently verified
+   by us until now) used a date format requiring a time component;
+   74 of 130 Sentinel-2 matchup rows have date-only timestamps and were
+   silently dropped from the monthly aggregation. This didn't fully
+   invalidate Pajarales' headline result (dry median shifts from a
+   previously-claimed 75.3→80.2 mg/L, still p<0.001) but it **did**
+   invalidate the CGSM seasonal claim: corrected dry/wet medians are
+   66.0/39.0 mg/L with Kruskal-Wallis **p=0.053** (borderline
+   significant, directionally consistent with Pajarales), not the
+   previously claimed p=0.80 (flat/non-significant). Verified robust
+   to single-outlier removal (p=0.106 even excluding CGSM's largest
+   dry-season value). Manuscript text and Conclusions updated
+   throughout (`code/09_seasonal_figures.py`, §3.5 `sec:results_temporal`).
+12. **Rebuilt 2 figures from a prior session's outputs after auditing
+    7 supplied images** — only 2 were salvageable as-is conceptually
+    (monthly climatology, annual anomaly); 5 were built on 5-fold
+    random CV (the leakage problem this project already rejected) or
+    predate the Sentinel-2 atmospheric-correction fix and would
+    visually contradict the manuscript's now-corrected S2 finding.
+    Those 5 were not used. See conversation history for the
+    full image-by-image audit.
 
 ### Still open
 
