@@ -17,6 +17,15 @@ Sensing*).
 Sensors calibrated and reported **separately** — a pooled fit underperforms
 either alone (in-sample $R^2$=0.353 vs 0.803/0.419).
 
+**Secondary model comparison (L8 only)**: a power-law alternative
+($TSS=a\rho^b$, no saturation parameter) modestly outperforms Nechad on
+Landsat-8 (LOSO $R^2$=0.796 vs 0.784, bias +0.2 vs +6.2 mg/L), bootstrap-
+validated to the same standard. Does NOT generalize: worse than Nechad on
+S2 (0.314 vs 0.372), mixed on CGSM (0.616, within Nechad's own range).
+Nechad retained as primary model for physical interpretability and
+compatibility with the transfer framework; power-law reported as a real,
+relevant comparison (`code/08_powerlaw_comparison.py`, §3.3 in `main.tex`).
+
 ### Step 2 — CGSM evaluation
 
 $\kappa$=0.13, bootstrap CV($C_p$)=49.6% → genuinely unidentifiable, correctly
@@ -58,6 +67,13 @@ $R^2$=0.53–0.64 depending on local adaptation.
 8. **S1–TSS dilution claim flagged** as confounded by shared long-term
    trends in both series — not yet resolved, would need the raw S1 time
    series to detrend properly (§4.6 `sec:disc_hydro`, not fabricated)
+9. **Station clustering tested** (`code/06_station_clustering.py`) and
+   **NIR-aware OWT tested** (`code/07_nir_owt_stratification.py`, from an
+   idea in an earlier exploratory script) — neither reliably improves
+   on the pooled baseline; closed
+10. **Power-law alternative tested and reported** (`code/08_powerlaw_comparison.py`,
+    §3.3 `sec:results_powerlaw`) — modest, real win for L8, not generalizable;
+    Nechad retained as primary model
 
 ### Still open
 

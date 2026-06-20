@@ -85,7 +85,7 @@ jhonnatan.rodriguezramos@uniroma1.it
 }
 
 % Keywords
-\abstract{Empirical TSS retrieval models derived from satellite reflectance are frequently applied beyond their calibration domain without explicit assessment of parameter identifiability or rigorous transferability testing. We address both limitations using harmonised Landsat-8 (L8) and Sentinel-2 (S2) matchup datasets collected at the Pajarales sub-lagoon (calibration; n = 240) and the Ciénaga Grande de Santa Marta (CGSM; validation; n = 74, 2015–2024), Colombia. We evaluated a commonly used screening ratio for Nechad parameter identifiability ($\kappa = \rho_{max}/C_{p,upper}$, with a conventional $\kappa \geq 0.35$ cutoff for free two-parameter fitting) directly against this system's own data, and found it did not reliably separate identifiable from unidentifiable fits: Landsat-8 at Pajarales ($\kappa = 0.343$, nominally below threshold) in fact supports a stable, bootstrap-validated free-parameter fit, while the CGSM dataset ($\kappa = 0.13$, well below threshold) does not. We therefore replace the fixed $\kappa$ cutoff with a direct bootstrap stability criterion on the fitted saturation parameter $C_p$, and use it to determine, per sensor and site, whether $C_p$ can be reliably estimated from data or must instead be fixed externally with $A_p$ estimated by closed-form weighted least squares. Landsat-8 and Sentinel-2 are calibrated and reported as separate, physically grounded single-sensor models rather than pooled into a single retrieval, since a pooled fit was found to underperform either sensor calibrated alone. Using the bootstrap-validated Landsat-8 calibration ($R^2_{\text{LOSO}} = 0.784$ at Pajarales), a four-scenario transferability framework to the CGSM shows that direct transfer with no local adjustment performs poorly ($R^2 = 0.262$) precisely because the better-fitting, more sharply curved source model is more sensitive to cross-site reflectance mismatch than a flatter one would be; performance recovers substantially once any local data are used, reaching $R^2 = 0.563$ (partial transfer, $C_p$ fixed, $A_p$ refit locally), $R^2 = 0.639$ (full local recalibration), and $R^2 = 0.681$ (a non-physical Gradient Boosting ceiling). This reveals a genuine trade-off, not previously reported for this system: a source calibration that fits its own domain best is not automatically the best zero-adjustment transfer source. Analysis of 10 years of in-situ matchups (2015–2024) reveals significantly higher dry-season TSS (median 75 mg/L) than wet-season values (29 mg/L; Kruskal-Wallis p < 0.001) in Pajarales, while the CGSM shows weaker seasonal differentiation. An atmospheric-correction artefact was identified and corrected for Sentinel-2 at Pajarales, after which Sentinel-2 reflectance--TSS correlation improved from r = 0.12 to r = 0.62; even so, Landsat-8 retains substantially stronger and more stable performance ($R^2_{\text{LOSO}} = 0.784$ vs.\ $0.372$), and a persistent inter-sensor reflectance offset precludes pooled multi-sensor calibration at this site. These findings provide a reproducible, physics-grounded calibration and transfer framework applicable to data-limited tropical coastal lagoons, and illustrate that identifiability criteria adopted from the literature should be validated against, rather than merely applied to, a new system's own data before they are used to drive calibration decisions.}
+\abstract{Empirical TSS retrieval models derived from satellite reflectance are frequently applied beyond their calibration domain without explicit assessment of parameter identifiability or rigorous transferability testing. We address both limitations using harmonised Landsat-8 (L8) and Sentinel-2 (S2) matchup datasets collected at the Pajarales sub-lagoon (calibration; n = 240) and the Ciénaga Grande de Santa Marta (CGSM; validation; n = 74, 2015–2024), Colombia. We evaluated a commonly used screening ratio for Nechad parameter identifiability ($\kappa = \rho_{max}/C_{p,upper}$, with a conventional $\kappa \geq 0.35$ cutoff for free two-parameter fitting) directly against this system's own data, and found it did not reliably separate identifiable from unidentifiable fits: Landsat-8 at Pajarales ($\kappa = 0.343$, nominally below threshold) in fact supports a stable, bootstrap-validated free-parameter fit, while the CGSM dataset ($\kappa = 0.13$, well below threshold) does not. We therefore replace the fixed $\kappa$ cutoff with a direct bootstrap stability criterion on the fitted saturation parameter $C_p$, and use it to determine, per sensor and site, whether $C_p$ can be reliably estimated from data or must instead be fixed externally with $A_p$ estimated by closed-form weighted least squares. Landsat-8 and Sentinel-2 are calibrated and reported as separate, physically grounded single-sensor models rather than pooled into a single retrieval, since a pooled fit was found to underperform either sensor calibrated alone. Using the bootstrap-validated Landsat-8 calibration ($R^2_{\text{LOSO}} = 0.784$ at Pajarales), a four-scenario transferability framework to the CGSM shows that direct transfer with no local adjustment performs poorly ($R^2 = 0.262$) precisely because the better-fitting, more sharply curved source model is more sensitive to cross-site reflectance mismatch than a flatter one would be; performance recovers substantially once any local data are used, reaching $R^2 = 0.563$ (partial transfer, $C_p$ fixed, $A_p$ refit locally), $R^2 = 0.639$ (full local recalibration), and $R^2 = 0.681$ (a non-physical Gradient Boosting ceiling). This reveals a genuine trade-off, not previously reported for this system: a source calibration that fits its own domain best is not automatically the best zero-adjustment transfer source. Analysis of 10 years of in-situ matchups (2015–2024) reveals significantly higher dry-season TSS (median 75 mg/L) than wet-season values (29 mg/L; Kruskal-Wallis p < 0.001) in Pajarales, while the CGSM shows weaker seasonal differentiation. An atmospheric-correction artefact was identified and corrected for Sentinel-2 at Pajarales, after which Sentinel-2 reflectance--TSS correlation improved from r = 0.12 to r = 0.62; even so, Landsat-8 retains substantially stronger and more stable performance ($R^2_{\text{LOSO}} = 0.784$ vs.\ $0.372$), and a persistent inter-sensor reflectance offset precludes pooled multi-sensor calibration at this site. A structurally simpler power-law alternative ($\text{TSS}=a\,\rho^b$, no saturation parameter) modestly outperforms Nechad for Landsat-8 ($R^2=0.796$ vs.\ $0.784$, with substantially lower bias) but not for Sentinel-2, and Nechad is retained as the primary model for its physical interpretability and compatibility with the transferability framework. These findings provide a reproducible, physics-grounded calibration and transfer framework applicable to data-limited tropical coastal lagoons, and illustrate that identifiability criteria adopted from the literature should be validated against, rather than merely applied to, a new system's own data before they are used to drive calibration decisions.}
 \keyword{Remote sensing, Water quality, Environmental monitoring, Time Series Analysis, Seasonal Dynamics, Landsat 8, Sentinel 2} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -480,8 +480,13 @@ reflectance, $A_p~(mg/L$) is an amplitude coefficient encoding
 backscattering efficiency, and $C_p$ is the saturation reflectance
 asymptote, physically bounded between approximately 0.10 and 0.55 for
 the red band \citep{NECHAD2010854}. A power-law model
-($\text{TSS} = a\,\rho^b$) was also evaluated as a comparison
-benchmark but not adopted as the primary retrieval model.
+($\text{TSS} = a\,\rho^b$), which has no saturation parameter and is
+therefore not subject to the identifiability concerns addressed in
+Section~\ref{sec:identifiability}, was also evaluated as a comparison
+benchmark for Landsat-8 (Section~\ref{sec:results_powerlaw}); Nechad
+remains the primary retrieval model reported throughout the rest of
+this study, including for Sentinel-2 and the CGSM transfer framework,
+where the power-law form was found not to improve on Nechad.
  
  
 \subsubsection{Parameter Identifiability Assessment}
@@ -946,6 +951,95 @@ record for each model's predictive performance.
     \label{fig:calib_cv}
 \end{figure}
 
+
+% ── §3.3 ────────────────────────────────────────────────────────
+\subsection{Comparison Against a Power-Law Alternative}
+\label{sec:results_powerlaw}
+
+Because the Nechad model's saturation parameter $C_p$ motivates a
+substantial share of this study's methodological apparatus
+(Section~\ref{sec:identifiability}), a structurally simpler two-parameter
+power-law model, $\text{TSS} = a\,\rho^b$, was fitted to the same
+Landsat-8 Pajarales data ($n=110$) as a direct comparison. The
+power-law form has no asymptote and is therefore not subject to any
+identifiability concern of the kind that motivates the bootstrap
+criterion for Nechad.
+
+Bootstrap resampling (50 resamples, the same procedure used for Nechad
+in Section~\ref{sec:identifiability}) shows the fitted exponent $b$ is
+reasonably stable ($\mathrm{CV}(b) = 6.4\%$, comparable to Nechad's
+$\mathrm{CV}(C_p) = 4.6\%$); the coefficient $a$ alone is noisier
+($\mathrm{CV}(a) = 22.9\%$), but this reflects the expected correlation
+between $a$ and $b$ in a power-law fit rather than genuine prediction
+instability -- the bootstrap distribution of \emph{predicted} TSS at
+the median observed reflectance is itself stable
+($\mathrm{CV} = 6.8\%$).
+
+Leave-one-station-out cross-validation gives $a = 11551.2$,
+$b = 1.823$ (global fit) and $R^2 = 0.796$, RMSE $= 49.1$~mg/L,
+bias $= +0.2$~mg/L ($n=110$). This is a consistent, if modest,
+improvement over the free-$C_p$ Nechad model on the same data and
+folds ($R^2 = 0.784$, RMSE $= 50.5$~mg/L, bias $= +6.2$~mg/L,
+Table~\ref{tab:pajarales_cv}): power-law achieves a higher $R^2$, a
+lower RMSE, and -- most notably -- a substantially smaller systematic
+bias. Table~\ref{tab:powerlaw} summarises both models on identical
+data and validation folds.
+
+\begin{table}[ht]
+\centering
+\caption{Landsat-8 Pajarales, leave-one-station-out cross-validation:
+Nechad (free $C_p$, primary model) vs.\ power-law (comparison
+benchmark), identical data and folds ($n=110$).}
+\label{tab:powerlaw}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Model & $R^2$ & RMSE (mg\,L$^{-1}$) & Bias (mg\,L$^{-1}$) & Parameters \\
+\midrule
+Nechad (free $C_p$) & 0.784 & 50.5 & $+6.2$ & $A_p=1023.0$, $C_p=0.2732$ \\
+Power-law           & \textbf{0.796} & \textbf{49.1} & \textbf{$+0.2$} & $a=11551.2$, $b=1.823$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Per-station breakdown (Figure~\ref{fig:powerlaw}) shows the same
+structural pattern for both models: the three stations with the
+largest sample sizes ($n=28$--$32$) dominate the pooled metric and
+score well individually ($R^2 = 0.73$--$0.85$ for power-law), while the
+seven stations with very few observations ($n=2$--$5$) show highly
+unstable per-station $R^2$ in both directions for both models -- an
+artefact of small leave-one-out test folds rather than a weakness
+specific to either functional form.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/fig10_powerlaw_comparison.png}
+    \caption{Observed vs.\ predicted TSS, Landsat-8 Pajarales,
+    leave-one-station-out cross-validation. (a) Nechad, free $C_p$
+    ($R^2=0.784$). (b) Power-law ($R^2=0.796$). Identical data and
+    folds; power-law shows a modest, consistent improvement,
+    particularly in bias.}
+    \label{fig:powerlaw}
+\end{figure}
+
+The power-law form was also tested for Sentinel-2 and was found to
+perform \emph{worse} than Nechad on that sensor ($R^2 = 0.314$ vs.\
+$0.372$), and a CGSM in-domain comparison gave a mixed result
+($R^2 = 0.616$, between Nechad's partial- and full-local-recalibration
+figures of $0.531$--$0.639$, Table~\ref{tab:transferability}). The
+power-law advantage observed for Landsat-8 therefore does not
+generalise uniformly across sensors at this site, and Nechad is
+retained as the primary retrieval model throughout the rest of this
+study -- for consistency with the CGSM transferability framework
+(Section~\ref{sec:transfer}), whose physical rationale (a
+sediment-provenance-determined, transferable $C_p$,
+Section~\ref{sec:disc_transfer}) has no power-law analogue, and
+because Nechad's parameters retain a direct physical interpretation
+that the power-law's do not. We report this comparison because a
+structurally simpler alternative outperforming the primary physical
+model on its best-performing sensor is a relevant methodological
+finding in its own right, not because it changes this study's
+recommended model.
  
  
 % ── §3.4 ────────────────────────────────────────────────────────
@@ -1670,6 +1764,24 @@ are:
     requiring less local data and retaining physical interpretability
     for a \emph{further} transfer site, not on superior accuracy at
     CGSM itself.
+ 
+    \item A structurally simpler power-law model
+    ($\text{TSS} = a\,\rho^b$, no saturation parameter, and therefore
+    free of the identifiability concerns motivating points~1 and~2
+    above) modestly but consistently outperforms Nechad for Landsat-8
+    at Pajarales (leave-one-station-out $R^2 = 0.796$ vs.\ $0.784$,
+    bias $+0.2$ vs.\ $+6.2$~mg/L), bootstrap-validated to the same
+    standard applied to Nechad's $C_p$. This advantage does not
+    generalise to Sentinel-2 (power-law $R^2 = 0.314$ vs.\ Nechad's
+    $0.372$) or unambiguously to CGSM ($R^2 = 0.616$, within Nechad's
+    own scenario range). Nechad is retained as this study's primary
+    model for its physical interpretability and its compatibility with
+    the transferability framework (point~3, above, depends on a
+    physically meaningful, transferable $C_p$ that the power-law form
+    does not provide), but the comparison itself is a relevant
+    finding: a more complex, physically motivated model is not
+    automatically the best-fitting one, even on the dataset its own
+    physical rationale was designed for.
  
     \item Pajarales exhibits a statistically significant seasonal TSS
     cycle (dry median 75.3 vs.\ wet 29.3~$mg/L$;
