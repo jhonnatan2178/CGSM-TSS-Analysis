@@ -47,9 +47,9 @@ log = logging.getLogger(__name__)
 # CONFIGURATION -- EDIT THESE
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Root folder containing all NetCDF subfolders (or set to a single folder
-# if all files are together; the script searches recursively)
-INPUT_ROOT = r"E:\images_filtradas"
+# Root folder -- ALL NetCDF files are in this single flat folder
+# (both T18PWS and T18PWT tiles together, no subfolders needed)
+INPUT_FOLDER = r"E:\images_filtradas\lista_archivos_carpeta1\output_carpeta1"
 
 # Output directory for annual GeoTIFFs
 OUTPUT_DIR = r"E:\output_mosaics"
@@ -339,14 +339,20 @@ def save_geotiff(array, lat, lon, output_path, nodata=np.nan):
 
 # ─── Main pipeline ────────────────────────────────────────────────────────────
 
-def scan_files(root):
-    """Recursively find all L2W NetCDF files and parse their metadata."""
-    log.info(f"Scanning for L2W NetCDF files in: {root}")
-    all_nc = glob.glob(os.path.join(root, "**", "*L2W.nc"), recursive=True)
-    log.info(f"Found {len(all_nc)} .nc files")
+def scan_files(folder):
+    """
+    Find all L2W NetCDF files in a single flat folder (no subfolders needed).
+    Both T18PWS and T18PWT files are expected in the same directory.
+    Single-tile scenes (only one tile for a given date) are handled normally --
+    the mosaic step simply returns that one tile's data directly.
+    """
+    log.info(f"Scanning folder: {folder}")
+    # Non-recursive: all files are in one flat folder
+    all_nc = glob.glob(os.path.join(folder, "*L2W.nc"))
+    log.info(f"Found {len(all_nc)} *L2W.nc files")
 
     records = []
-    for path in all_nc:
+    for path in sorted(all_nc):
         meta = parse_filename(path)
         if meta and meta['tile'] in TILES:
             records.append(meta)
@@ -355,14 +361,21 @@ def scan_files(root):
 
     df = pd.DataFrame(records)
     if df.empty:
-        log.error("No valid L2W files found. Check INPUT_ROOT and TILES settings.")
+        log.error("No valid L2W files found. Check INPUT_FOLDER and TILES settings.")
         return df
+
+    # Count dates with one vs both tiles
+    date_tiles = df.groupby('date')['tile'].apply(set)
+    both = (date_tiles.apply(len) == 2).sum()
+    single = (date_tiles.apply(len) == 1).sum()
 
     log.info(f"Valid L2W files: {len(df)}")
     log.info(f"  Satellites: {df['satellite'].unique()}")
     log.info(f"  Tiles:      {df['tile'].unique()}")
     log.info(f"  Date range: {df['date'].min()} to {df['date'].max()}")
     log.info(f"  Years:      {sorted(df['year'].unique())}")
+    log.info(f"  Dates with both tiles: {both}  |  single-tile only: {single}")
+    log.info(f"  (single-tile scenes processed normally -- no pairing required)")
     return df
 
 
@@ -489,7 +502,7 @@ def main():
     log.info("=" * 70)
     log.info("ANNUAL TSS MOSAIC PIPELINE")
     log.info("=" * 70)
-    log.info(f"Input:       {INPUT_ROOT}")
+    log.info(f"Input:       {INPUT_FOLDER}")
     log.info(f"Output:      {OUTPUT_DIR}")
     log.info(f"Tiles:       {TILES}")
     log.info(f"Nechad S2:   Ap={NECHAD_S2['Ap']}, Cp={NECHAD_S2['Cp']}")
@@ -497,7 +510,7 @@ def main():
     log.info(f"ACOLITE SPM: {SPM_VAR}")
 
     # Scan all files
-    df = scan_files(INPUT_ROOT)
+    df = scan_files(INPUT_FOLDER)
     if df.empty:
         return
 
