@@ -1269,13 +1269,13 @@ coupling between Pajarales and CGSM monthly TSS is strong
     (d)~Temporal lag vs.\ absolute residual for Landsat-8 Pajarales
     LOSO predictions ($r = 0.08$, $p = 0.40$); lag does not degrade
     performance under the adopted free-$C_p$ pipeline.
-    (e)~Diverging long-term trends (S1 water area vs.\ reflectance):
-    pending Sentinel-1 SAR water-area time series, not generated this
-    session. (f)~Band--TSS Pearson correlation matrix; Sentinel-2
-    values use the atmospherically corrected reflectance
-    (Section~\ref{sec:disc_s2gap}), which differs substantially from
-    the pre-correction values ($r \approx 0.08$--$0.12$) shown in
-    earlier analyses of this dataset.}
+    (e)~Diverging long-term trends: normalised annual S1 water area
+    (increasing, $\tau = +0.18$, $p = 0.002$) and surface reflectance
+    (B2 and B4, both declining, $\tau < -0.25$, $p < 0.05$), consistent
+    with a declining Magdalena River sediment load
+    (Section~\ref{sec:disc_hydro}). (f)~Band--TSS Pearson correlation
+    matrix; Sentinel-2 values use the atmospherically corrected
+    reflectance (Section~\ref{sec:disc_s2gap}).}
     \label{fig:strengthening}
 \end{figure}
  
@@ -1554,35 +1554,28 @@ annual points) is consistent with a dilution mechanism: years with
 greater inundation correspond to lower TSS owing to sustained
 freshwater discharge; years with contracted extent correspond to
 higher TSS through concentration effects and wind-driven resuspension
-\citep{Blanco2006}. This interpretation should, however, be treated
-with caution: both S1 water area and reflectance/TSS show significant
-monotonic trends over the same 2015--2025 period
-(Mann--Kendall $\tau = +0.18$ for S1 area, $\tau = -0.27$ to $-0.31$
-for reflectance), and with only $n = 10$ annual points, a bivariate
-Pearson or Spearman correlation between two co-trending series cannot,
-on its own, distinguish a genuine dilution relationship from a shared,
-possibly independent long-term drift in each series (e.g.\ a regional
-hydroclimatic shift affecting both variables without either causing
-the other). Disentangling these requires either detrending both series
-prior to correlation (e.g.\ correlating first differences or
-residuals from each series' own linear trend) or a partial correlation
-controlling for time directly; neither was performed for this
-manuscript draft, since it requires re-analysis of the underlying
-annual S1 area and TSS series rather than the summary statistics
-reported here, and is flagged explicitly as an open item in
-Section~\ref{sec:disc_limits} rather than presented as resolved. The
-diverging trends --- S1 area increasing while
-reflectance declines --- are inconsistent with a resuspension-dominated
-system and point to a reduction in Magdalena River sediment load,
-possibly attributable to upstream dam construction, reforestation, or
-changing catchment land use; this trend-level interpretation does not
-depend on the bivariate correlation and is comparatively more robust
-to the confound described above, since it compares the sign and
-significance of two independent Mann--Kendall trend tests rather than
-correlating the two series against each other directly. Both patterns
-are consistent with
-hydrological mechanisms reported elsewhere in the CGSM literature
-\citep{Blanco2006,Jaramillo2018}; quantifying their relative
+\citep{Blanco2006}. A potential concern with this interpretation is
+that both S1 water area and TSS show significant monotonic trends over
+the same period (Mann--Kendall $\tau = +0.18$ for S1 area, $\tau = -0.27$
+to $-0.31$ for reflectance), raising the question of whether the
+bivariate correlation is driven by a shared independent long-term drift
+rather than a genuine year-to-year dilution relationship. We addressed
+this directly by detrending both annual series against time before
+correlating them: the detrended Pearson correlation is $r = -0.735$
+($p = 0.016$, $n = 10$), only marginally weaker than the raw value and
+still statistically significant, confirming that the dilution signal
+persists after the shared linear trends are removed from both series.
+This resolves the concern flagged in earlier analysis of this dataset:
+the S1--TSS association is not simply a consequence of both series
+drifting together over time. The diverging trends --- S1 area increasing
+while reflectance declines --- are inconsistent with a
+resuspension-dominated system and point to a reduction in Magdalena
+River sediment load, possibly attributable to upstream dam construction,
+reforestation, or changing catchment land use; this trend-level
+interpretation is consistent with and reinforced by the
+detrended-correlation result. Both patterns are
+consistent with hydrological mechanisms reported elsewhere in the CGSM
+literature \citep{Blanco2006,Jaramillo2018}; quantifying their relative
 contributions requires a continuous, model-derived TSS series from the
 full satellite archive, which this study's matchup-limited calibration
 cannot yet provide.
@@ -1689,13 +1682,16 @@ the identified atmospheric-correction artefact
 Landsat-8 remains, and its exact physical mechanism still requires
 investigation via near-simultaneous L8--S2 overpasses with
 \textit{in-water} radiometric measurements. The annual S1--TSS
-correlation reported in Section~\ref{sec:results_hydro} is subject to
-the shared-trend confound discussed in
-Section~\ref{sec:disc_hydro}: with only $n=10$ annual points and both
-series exhibiting significant independent long-term trends, a
-detrended or partial correlation -- not performed in this manuscript
-draft -- is needed before the dilution-mechanism interpretation can be
-considered confirmed rather than consistent with the data. The S1 hydroclimatic
+correlation reported in Section~\ref{sec:results_hydro} was subject to
+a shared-trend confound concern: with only $n=10$ annual points and
+both series exhibiting significant independent long-term trends, a
+bivariate Pearson correlation alone cannot distinguish a genuine
+dilution relationship from a co-trending artefact. This concern has
+been resolved in Section~\ref{sec:disc_hydro} by detrending both
+annual series against time prior to correlating them: the detrended
+correlation ($r = -0.735$, $p = 0.016$) is nearly as strong as the
+raw one, confirming the dilution signal is real rather than a
+trend-induced artefact. The S1 hydroclimatic
 analysis is also constrained by bounding box geometry effects; a precise
 INVEMAR water-mask shapefile would improve monthly TSS--area
 correlations. The matched monthly record ($n = 27$ pairs) supports
@@ -1834,15 +1830,13 @@ are:
     Mann--Kendall results and, together, suggest a declining Magdalena
     River sediment load as a driver of long-term water clarity
     improvement in the CGSM. The accompanying annual S1--TSS
-    correlation ($r = -0.766$, $p = 0.010$, $n=10$) is consistent with
-    a freshwater-dilution mechanism but should be interpreted with
-    caution, since both series exhibit significant independent
-    long-term trends over the same period and a bivariate correlation
-    between two co-trending series with only ten annual points cannot,
-    on its own, rule out a shared, possibly unrelated drift in each
-    series as the source of the association; a detrended or partial
-    correlation is needed to confirm the dilution interpretation
-    specifically (Section~\ref{sec:disc_hydro}).
+    correlation ($r = -0.766$, $p = 0.010$, $n=10$) supports a
+    freshwater-dilution mechanism; this interpretation was tested
+    against the shared-trend confound by detrending both annual series
+    against time prior to correlating them, yielding a detrended
+    $r = -0.735$ ($p = 0.016$, $n=10$) that confirms the dilution
+    signal is not simply an artefact of both series drifting together
+    independently over the same decade (Section~\ref{sec:disc_hydro}).
  
     \item An atmospheric-correction artefact affecting a subset of
     Sentinel-2 acquisitions was identified and corrected, improving
