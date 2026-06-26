@@ -1259,13 +1259,23 @@ coupling between Pajarales and CGSM monthly TSS is strong
         clip,
         trim=0 0 0 40
     ]{images/fig9_strengthening_analyses.png}
-    \caption{Strengthening analyses. (a)~LOSO-CV performance for all
-    four transferability scenarios. (b)~Minimum matchup requirement
-    for partial transfer (Scenario~C): power curve.
-    (c)~Station-level prediction bias at CGSM stations.
-    (d)~Temporal lag vs.\ absolute residual ($r = -0.20$,
-    $p = 0.08$). (e)~Diverging long-term trends (normalised).
-    (f)~Band--TSS Pearson correlation matrix.}
+    \caption{Strengthening analyses. (a)~LOSO-CV $R^2$ for all
+    four transferability scenarios (Table~\ref{tab:transferability}).
+    (b)~Minimum matchup requirement for partial transfer (Scenario~C):
+    mean $\pm$ 1~s.d.\ $R^2$ across 20 random subsamples of the CGSM
+    dataset at each training size. (c)~Station-level prediction bias
+    under Scenario~B (local NECHAD, free $C_p$) at the four CGSM
+    monitoring stations; red bars indicate $|\text{bias}| > 20$~mg/L.
+    (d)~Temporal lag vs.\ absolute residual for Landsat-8 Pajarales
+    LOSO predictions ($r = 0.08$, $p = 0.40$); lag does not degrade
+    performance under the adopted free-$C_p$ pipeline.
+    (e)~Diverging long-term trends (S1 water area vs.\ reflectance):
+    pending Sentinel-1 SAR water-area time series, not generated this
+    session. (f)~Band--TSS Pearson correlation matrix; Sentinel-2
+    values use the atmospherically corrected reflectance
+    (Section~\ref{sec:disc_s2gap}), which differs substantially from
+    the pre-correction values ($r \approx 0.08$--$0.12$) shown in
+    earlier analyses of this dataset.}
     \label{fig:strengthening}
 \end{figure}
  
@@ -1364,7 +1374,11 @@ calibration figures reported here, though the qualitative shape of the
 window-sensitivity curve is unaffected by which fitting mode is used.)
 There is
 no significant relationship between temporal lag and absolute residual
-within the adopted window ($r = -0.20$, $p = 0.08$), supporting the
+within the adopted window ($r = +0.08$, $p = 0.40$; the sign
+reversal relative to an earlier, fixed-$C_p$ analysis of this dataset
+reflects the fact that the free-$C_p$ model assigns somewhat different
+predictions to temporally distant matchups than the fixed-$C_p$
+predecessor did), supporting the
 temporal weighting strategy (Equation~\ref{eq:weight}) as the
 appropriate way to retain, rather than discard, the more temporally
 distant matchups that this trade-off admits.
