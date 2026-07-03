@@ -1,15 +1,3 @@
-"""
-Annual TSS Mosaic Figure Assembly
-===================================
-Takes the annual GeoTIFF outputs from 11_annual_tss_mosaic.py and builds
-the multi-panel annual median TSS figure for the manuscript
-(TSS_promedio_anual_mosaico_CGSM.png).
-
-Run AFTER 11_annual_tss_mosaic.py has completed successfully.
-
-Usage:
-    python 12_build_mosaic_figure.py
-"""
 import os
 import glob
 import numpy as np

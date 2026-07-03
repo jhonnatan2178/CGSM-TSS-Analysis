@@ -1,30 +1,3 @@
-"""
-Annual TSS Mosaic Pipeline
-============================
-Produces annual median TSS maps for the CGSM + Pajarales study area by:
-
-1. Scanning all S2A/S2B L2W NetCDF files across both tiles (T18PWS, T18PWT)
-2. Grouping by date (scenes acquired on the same day are the same overpass)
-3. For each scene date: reading rhow_665 from both tiles, mosaicking them
-   into a single grid, applying the calibrated Nechad model to get TSS
-4. Optionally comparing against ACOLITE's built-in SPM (if present)
-5. Computing annual median composites and saving as GeoTIFF
-
-BEFORE RUNNING:
-  - Run 10_inspect_netcdf.py first and check that the variable names below
-    match what your files actually contain (especially RHOW_VAR, SPM_VAR).
-  - Install requirements: pip install netCDF4 numpy rasterio tqdm
-
-OUTPUTS (in OUTPUT_DIR):
-  annual_TSS_nechad_YYYY.tif    -- annual median from our calibrated model
-  annual_TSS_acolite_YYYY.tif   -- annual median from ACOLITE SPM (if available)
-  scene_count_YYYY.tif          -- number of valid scenes per pixel per year
-  mosaic_log.csv                 -- per-scene metadata and stats
-
-Author: generated for manuscript "Physically-Constrained Calibration and
-Transferability of a Semi-Analytical TSS Retrieval Model in a Tropical
-Coastal Lagoon System: CGSM, Colombia"
-"""
 import os
 import re
 import glob
