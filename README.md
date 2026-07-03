@@ -210,3 +210,5 @@ Both scripts read from `../data/` and print every reported metric to stdout.
 4. Have a co-author review the rewritten Results/Discussion sections
    (§3.2, §3.6, §4.3–4.5) against this repo's `code/` output before
    final submission
+#   C G S M - T S S - A n a l y s i s  
+ 
